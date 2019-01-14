@@ -1,0 +1,99 @@
+\documentclass[ ../main.tex]{subfiles}
+\providecommand{\mainx}{..}
+\begin{document}
+\appendix
+\appendixpage
+\addappheadtotoc
+\section{Probability mass of random bit length}
+\begin{algorithm}
+    \caption{Bit length sampler of \gls*{gls-shs}}
+    \label{alg:sampler}
+    \SetKwProg{func}{function}{$\colon$}{}
+    \KwIn
+    {
+        $m$ is the cardinality of the random set to approximate and $\fprate$ is the \gls{gls-fprate}.
+    }
+    \KwOut
+    {
+        A \emph{minimum bit length} $n$ of a \gls{gls-shs} conditioned on a random set with cardinality $m$ and a \gls{gls-fprate} $\fprate$.
+    }
+    \func{\sampler{$m$,$\fprate$}}
+    {
+        $\Set{S} \gets \emptyset$\;
+        \For{$i \gets 1$ \KwTo $m$}
+        {
+            $x \gets $ randomly draw a bit string from $\Set{B}^{*}$ without replacement\;
+            $\Set{S} \gets \Set{S} \cup \{x\}$\;
+        }    
+        $(h_k,b_n) \gets$ \MakeApproxSet{$\Set{S}$, $\fprate$}\;
+        \Return $k + n + \mathcal{O}(1)$\;
+    }
+\end{algorithm}
+
+For a particular $n$, each $b_n \in \Set{B}^n$ may fail to result in a perfect collision, therefore $n$ is uncertain and takes on particular values with probabilities given by the following theorem.
+\begin{definition}
+\label{thm:N_pmf}
+The \gls{gls-shs} generator given by \cref{alg:ph} finds a random string of a random bit length given by
+\begin{equation}
+    \RV{N} = \sampler(m, \fprate)\,,
+\end{equation}
+conditioned on a random set of cardinality $m$ and a \gls{gls-fprate} $\fprate$.
+\end{definition}
+
+\begin{theorem}
+The random bit length $\RV{N}$ has a probability mass function given by
+\begin{equation}
+\label{eq:N_pmf}
+    \PDF{n \Given m, \fprate}[\RV{N}] = q^{2^n-1}\left(1 - q^{2^n}\right)\,,
+\end{equation}
+where $q = 1 - \fprate^{m-1}$, $m$ is the cardinality of the random set, and $\fprate$ is the \gls{gls-fprate}.
+\end{theorem}
+\begin{proof}
+Each iteration of the loop in \cref{alg:ph} has a collision test which is Bernoulli distributed with a probability of success $\fprate^{m-1}$, where success denotes a perfect collision. We are interested in the random length $\RV{N}$ of the bit string when this outcome occurs.
+
+For the random variable $\RV{N}$ to realize a value $n$, every bit string smaller than length $n$ must fail and a bit string of length $n$ must succeed. There are $2^n-1$ bit strings smaller than length $n$ and each one fails with probability $q$, and so by the product rule the probability that they all fail is given by
+\begin{equation}
+\label{eq:N_pmf_1}
+    q^{2^n - 1}\,.
+\end{equation}
+
+Given that every bit string smaller than length $n$ fails, what is the probability that every bit string of length $n$ fails? There are $2^n$ bit strings of length $n$, each of which fails with probability $q$ as before and thus by the product rule the probability that they all fail is $q^{2^n}$, whose complement, the probability that not all bit strings of length $n$ fail, is given by
+\begin{equation}
+\label{eq:N_pmf_2}
+    1 - q^{2^n}\,.
+\end{equation}
+By the product rule, the probability that every bit string smaller than length $n$ fails and a bit string of length $n$ succeeds is given by the product of (\ref{eq:N_pmf_1}) and (\ref{eq:N_pmf_2}),
+\begin{equation}
+\label{eq:prob_is_mass}
+    q^{2^n-1}\left(1 - q^{2^n}\right)\,.
+\end{equation}
+For \Cref{eq:prob_is_mass} to be a probability mass function, two conditions must be met. First, its range must be a subset of $[0,1]$. Second, the summation over its domain must be $1$.
+
+The first case is trivially shown by the observation that $q$ is a positive number between $0$ and $1$ and therefore any non-negative power of $q$ is positive number between $0$ and $1$.
+
+The second case is shown by calculating the infinite series
+\begin{align}
+    S &= \sum_{n=0}^{\infty} q^{2^n-1}\left(1-q^{2^n}\right)\\
+      &= \sum_{n=0}^{\infty} q^{2^n-1} - q^{2^{n+1}-1}\,.
+\end{align}
+Explicitly evaluating this series for the first $4$ terms reveals a telescoping sum given by
+\begin{equation}
+    S = (1 - q) + (q - q^3) + (q^3 - q^7) + (q^7 - q^{15}) + \cdots\,,
+\end{equation}
+where everything cancels except $1$.
+
+Note that a simpler proof is given by
+\begin{equation}
+    \RV{N} = \log_2 \RV{Q}\,.
+\end{equation}
+Thus, the probability mass function is given by
+\begin{align}
+    \PDF{n \Given m,\fprate}[\RV{N}]
+        &= \Prob{\RV{N} = n}\\
+        &= \Prob{\log_2 \RV{Q} = n}\\
+        &= \Prob{\RV{Q} = 2^n}\\
+        &= \PDF{2^n \Given m, \fprate}[\RV{Q}]\\
+        &= \fprate^{m-1} (1 - \fprate^{m-1})^{2^n}
+\end{align}
+\end{proof}
+\end{document}

@@ -1,0 +1,130 @@
+\documentclass[ ../main.tex]{subfiles}
+\providecommand{\mainx}{..}
+\begin{document}
+\section{Oblivious sets}
+\label{sec:ob_set_def}
+A set is given by the following definition.
+\begin{definition}
+A set is an unordered collection of distinct elements from a universe of elements.
+\end{definition}
+
+A countable set is a \emph{finite set} or a \emph{countably infinite set}. A \emph{finite set} has a finite number of elements. For example,
+\[
+    \Set{S} = \{ 1, 3, 5 \}
+\]
+is a finite set with three elements. A \emph{countably infinite set} can be put in one-to-one correspondence with the set of natural numbers
+\begin{equation}
+    \NatSet = \{1,2,3,4,5,\ldots\}\,.
+\end{equation}
+
+The cardinality of a set $\Set{S}$ is a measure of the number of elements in the set, denoted by
+\begin{equation}
+    \Card{\Set{S}}\,.
+\end{equation}
+The cardinality of a \emph{finite set} is a non-negative integer and counts the number of elements in the set, e.g.,
+\[
+    \Card{\left\{ 1, 3, 5\right\}} = 3\,.
+\]
+
+Informally, an oblivious set of $\Set{S}$, denoted by $\OSet{S}$, provides a \emph{confidential} in-place binary representation such that very little information about $\Set{S}$ is disclosed. To be a minimally \emph{useful}, $\OSet{S}$ must permit \emph{membership tests} with respect to $\Set{S}$ with specifiable false positive and false negative rates. In what follows, we provide a formal specification of the abstract data type of the oblivious set.
+
+\subsection{Oblivious object types}
+A \emph{type} is a set and the elements of the set are called the \emph{values} of the type. An \emph{abstract data type} is a type and a set of operations on values of the type. For example, the \emph{integer} abstract data type is defined by the set of integers and standard operations like addition and subtraction. A \emph{data structure} is a particular way of organizing data and may implement one or more abstract data types.
+
+Suppose we have an abstract data type denoted by $T$ with a set of operators $\Set{F} = \{ \operatorname{f_1},\ldots,\operatorname{f_n}\}$ that are (at least partially) functions of $T$. We denote that an \emph{object} $x$ in computer memory implements the abstract data type $T$ by $T(x)$.
+
+An \emph{oblivious} object type\cite{obtype} that implements the abstract data type $T$ is a related type denoted by $\check{T}$ that provides guarantees about what can be learned about an object $\check{T}(x)$ by looking at the binary representation of $\check{x}$.
+
+Optimally, the only information that can be learned about $\check{x}$ is given by the well-defined \emph{behavior} of the the abstract data type on the set of operators $\Set{F}$. For instance, say an operator $\operatorname{g} \colon [T] \mapsto \{\True,\False\}$ is defined but not in $F$, and $\operatorname{g}(x) = \True$ for a particular object $T(x)$. Then, if the only information we have about $x$ is given by $\check{x} = \check{T}(x)$, then $\Prob{\operatorname{g}(\check{x}) = \operatorname{g}(x)} = 0.5$, i.e., we can do no better than a random guess.
+
+%TODO: Maybe enumerate all functions, and then talk about the entropy of the output. If it is exact, then the entropy is $0$ (degenerate distribution). If the probability that it is the same is ...
+
+The \emph{oblivious set} is an abstract data type which \emph{confidentially} approximates sets with two types of errors, false positives and false negatives. Thus, the oblivious part consists of two parts. First, it is a type of \emph{approximate set}\cite{aset}. Second, it provides additional confidentiality guarantees.
+
+The abstract data type of the immutable approximate set\cite{aset} is given by the following definition.
+\begin{definition}
+\label{def:approx_set}
+The abstract data type of the \emph{approximate set} over a universe $\Set{U}$ has values given by the set $\PowerSet(\Set{U})$. At a minimum, a set must provide some way to test whether particular elements in $\Set{U}$ are members of a particular set,
+\begin{align}
+    &\SetContains \colon \Set{U} \times \PowerSet(\Set{U}) \mapsto \{ \True, \False \}\,,\\
+\end{align}
+Let an element that is selected uniformly at random from the universe $\Set{U}$ be denoted by $\RV{X}$. A set $\ASet{S}$ is a \emph{approximate set} of a set $\Set{S}$ with a false positive rate $\fprate$ and false negative rate $\fnrate$ if the following conditions hold:
+\begin{enumerate}[(i)]
+    \item If $\RV{X}$ is a member of $\Set{S}$, it is not a member of $\ASet{S}$ with a probability $\fnrate$,
+    \begin{equation}
+        \Prob{\SetNotContains[\RV{X}][\ASet{S}] \Given \SetContains[\RV{X}][\Set{S}]} = \fnrate\,.
+    \end{equation}
+    
+    \item If $\RV{X}$ is \emph{not} a member of $\Set{S}$, it is a member of $\PASet{S}$ with a probability $\fprate$,
+    \begin{equation}
+        \Prob{\SetContains[\RV{X}][\ASet{S}] \Given \SetNotContains[\RV{X}][\Set{S}]} = \fprate\,.
+    \end{equation}
+\end{enumerate}
+\end{definition}
+
+The optimal space complexity of \emph{countably infinite} approximate sets is given by the following postulate.
+\begin{postulate}
+The \emph{optimal} space complexity of a data structure implementing the \emph{approximate set} over a \emph{countably infinite} universe is independent of the type of elements and depends only the false positive rate $\fprate$ and false negative rate $\fnrate$ as given by
+\begin{equation}
+    -(1 - \fnrate) \log_2 \fprate \; \si{bits \per element}\,.
+\end{equation}
+\end{postulate}
+
+The abstract data type of the \emph{immutable} oblivious set is given by the following definition.
+\begin{definition}[Oblivious set]
+\label{def:ob_set}
+Assuming that the only information about a set of interested $\Set{S} \subset \Set{U}$ is given by another set $\OSet{S}$, $\OSet{S}$ is an \emph{oblivious set} of a set $\Set{S}$ if the following conditions are hold:
+\begin{enumerate}[(i)]
+    \item There is no efficient way to enumerate the elements in $\OASet{S}$.\footnote{That is, the true positives and false positives.}
+    \item Any estimator of the cardinality of $\Set{S}$ may only be able determine an approximate upper and lower bound, uniformly distributed, where the uncertainty may be traded for space-efficiency.
+\end{enumerate}
+\end{definition}
+
+\begin{definition}[Approximate oblivious set]
+Assuming the conditions specified for oblivious sets hold in \cref{def:ob_set}, an oblivious set $\OASet{S}$ is an approximate oblivious set of $\Set{S}$ with a false positive rate $\fprate$ and a false negative rate $\fnrate$ if the following additional conditions hold:
+\begin{enumerate}
+    \item\label{itm:fpr} Each negative element tests positive with a probability $\fprate$ and tests negative with a probability $1-\fprate$. That is, each test is Bernoulli distributed, which is the \emph{maximum entropy} distribution given that the false positive rate is $\fprate$.\footnote{If the universe is finite and there are $\n$ negatives, the number of false positives is binomially distributed with a mean $\fprate \n$.}
+    
+    Assuming we do not have access to $\Set{S}$, the most accurate prediction possible when predicting whether an element is negative is $\fprate$.
+    
+    \begin{equation}
+        \Prob{\RV{X} \in \Set{S}} = \Prob{\text{$\RV{X}$ is a false negative or $\RV{X}$ is a true positive}}\,.
+    \end{equation}
+    
+    \item\label{itm:fnr} Each positive element tests negative with a probability $\fnrate$ and tests positive with a probability $1-\fnrate$. That is, each test is Bernoulli distributed, which is the \emph{maximum entropy} distribution given that the false negative rate is $\fnrate$.\footnote{If there are $\p$ positives, the number of false positives is binomially distributed with a mean $\fprate \n$.}
+    
+    \item By \cref{itm:fpr,itm:fnr}, $\OASet{S}$ is an approximate set\cite{aset} of $\Set{S}$ with a false positive rate $\fprate$ and false negative rate $\fnrate$.
+\end{enumerate}
+\end{definition}
+
+A \emph{oblivious positive set} is a special case given by the following definition.
+\begin{definition}
+\label{def:pos_ob_set}
+An \emph{oblivious set} $\OASet{S}$ with a false negative rate equal to zero is a \emph{oblivious positive set} denoted by $\OPASet{S}$. By this definition, $\OPASet{S}$ is a \emph{superset} of $\Set{S}$.
+\end{definition}
+The \emph{complement} of a \emph{oblivious positive set} is given by the following definition.
+\begin{definition}
+\label{def:neg_ob_set}
+An oblivious set $\OSet{S}$ with a false positive rate equal to zero is a \emph{oblivious negative set} denoted by $\ONASet{S}$. By this definition, $\ONASet{S}$ is a \emph{subset} of $\Set{S}$.
+\end{definition}
+
+The absolute space efficiency of a data structure $Y$ implementing an oblivious set consisting of $m$ positives with a false positive rate $\fprate$, false negative rate $\fnrate$, and an entropy $\beta$ is given by
+\begin{equation}
+    \AE(\fprate, \fnrate, m, \beta) = \Expect{\frac{-(1 - \fnrate)(m + \RV{X}) \log_2 \fprate}{\BL(Y)}}\,,
+\end{equation}
+where
+\begin{equation}
+    \RV{X} \sim \dudist(0,2^\beta - 1)
+\end{equation}
+and $Y$ is a function of the random variable $X$.
+
+The \emph{Singular Hash Set} is an \emph{optimal} implementation of the oblivious set abstract data type.
+
+The relative efficiency of the \emph{optimal} oblivious set with entropy $\beta$ to the \emph{optimal} approximate set ($\beta = 0$) has an expectation given by
+\begin{equation}
+    \RE(\,\cdot\,, m, \beta) = 2^{-\beta} \sum_{k=0}^{2^\beta-1} \left(1 + \frac{k}{m}\right)^{-1}\,.
+\end{equation}
+For a fixed $\beta$, as $m \to \infty$ the relative efficiency goes to $1$.
+
+See \cref{sec:impl} to see how a C++ interface for the approximate set abstract data type may be defined.
+\end{document}

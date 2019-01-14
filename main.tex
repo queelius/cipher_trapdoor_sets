@@ -1,0 +1,93 @@
+%\documentclass{IEEEconf}
+%\documentclass[conference]{IEEEtran}
+%\documentclass[a4paper,twocolumn,10pt]{article}
+\documentclass[final,11pt,hidelinks]{article}
+\usepackage[T1]{fontenc} % optional
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage[activate={true,nocompatibility},final,tracking=true,kerning=true,spacing=true,factor=1100,stretch=10,shrink=10]{microtype}
+\microtypecontext{spacing=nonfrench}
+\usepackage{algorithm2e}
+\usepackage{appendix}
+\usepackage{caption}
+\usepackage{enumerate}
+\usepackage{bbm}
+\usepackage{mathtools}
+\usepackage{nomencl}
+\makenomenclature
+\usepackage{commath}
+\usepackage{subfiles}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{wasysym}
+\usepackage[hidelinks]{hyperref}
+\usepackage{tikz}
+\usepackage{tikzscale}
+\usepackage[section]{placeins}
+\usepackage[nopostdot,symbols,toc,acronym]{glossaries}
+\usepackage[square,numbers]{natbib}
+\usepackage{siunitx}
+\usepackage{cleveref}
+\usepackage[margin=1in]{geometry}
+\usepackage[fancy]{setnotation}
+\usepackage{approxsetnotation}
+\usepackage{probabilitynotation}
+
+\hypersetup
+{
+    pdftitle={The Oblivious Set abstract data type}, % title
+    pdfauthor={Alexander Towell},               % author
+    pdfsubject={computer science},              % subject of the document
+    pdfkeywords={
+        approximate sets,
+        hash function,
+        random oracle,
+        cryptographic hash function},           % keywords
+    colorlinks=false,                           % false: boxed links; true: colored links
+    citecolor=green,                            % color of links to bibliography
+    filecolor=magenta,                          % color of file links
+    urlcolor=green                              % color of external links
+}
+
+\include{defs}
+\include{nomen}
+\makenomenclature
+\loadglsentries{gloss}
+
+\title
+{
+    The \emph{Oblivious Set} abstract data type
+}
+\author
+{
+    Alexander Towell\\
+    \texttt{atowell@siue.edu}
+}
+\date{}
+\begin{document}
+\maketitle
+\begin{abstract}
+We define the semantics of abstract data type for the \emph{oblivious set}. We demonstrate a theoretical data structure, denoted the \emph{Singular Hash Set}, that provides an optimal implementation of the oblivious set with respect to \emph{entropy} and \emph{space complexity}. Finally, we show how to use the \emph{Bloom filter} and \emph{Perfect Hash Filter} to implement oblivious sets and compare them to each other and the theoretically optimal \emph{Singular Hash Set}.
+\end{abstract}
+
+%\printnomenclature
+
+\microtypesetup{protrusion=false}
+\tableofcontents
+%\listoffigures
+%\listofalgorithms
+%\lstlistoflistings
+\microtypesetup{protrusion=true}
+
+\subfile{sections/intro}
+\subfile{sections/ob_set}
+\subfile{sections/prob_model}
+\subfile{sections/entropy}
+\subfile{sections/estimators}
+\subfile{sections/shs}
+\subfile{sections/appendix}
+\printglossary
+\bibliography{references}
+\end{document}
