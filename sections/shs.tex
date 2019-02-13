@@ -1,5 +1,8 @@
 \documentclass[ ../main.tex]{subfiles}
 \providecommand{\mainx}{..}
+
+\usepackage{../setnotation}
+
 \begin{document}
 \section{The \emph{Singular Hash Set}}
 \label{sec:shs}
@@ -53,9 +56,13 @@ A \emph{hash function} is related to countable sets $\Set{B}$ and $\Set{B}[n]$ a
 A \emph{hash function} $\hash \colon \Set{B} \mapsto \Set{B}^n$ is a function such that all bit strings of arbitrary-length are mapped (hashed) to bit strings of fixed-length $n$. For a given $x \in \Set{B}$, $y = \hash(x)$ is denoted the \emph{hash} of $x$.
 \end{definition}
 
-The \gls{gls-shs} is a data type that implements the \emph{oblivious set} abstract data type. The implementation consists of a product data structure (tuple) in the domain $\Set{B}^k \times \Set{B}^{*}$, an algorithm that \emph{generates} the data structure, an algorithm that implements the \emph{member-of} function by \emph{querying} the previously mentioned data structure, and the availability of a \emph{random oracle}.
+The \gls{gls-shs} is a data type that implements the \emph{oblivious set} 
+abstract data type. The implementation consists of a product data structure 
+(tuple) $\Set{B}^k \times \Set{B}^{*}$, an algorithm that \emph{generates} the 
+data structure, and an algorithm that implements the \emph{member-of} function 
+by \emph{querying} the data structure. 
 
-A random oracle as given by the following definition.
+The \gls{gls-shs} assumes that random oracles are available.
 \begin{definition}
 \label{def:randomoracle}
 A random oracle, denoted by $\ro \colon \Set{B}^\infty \mapsto \Set{B}^\infty$, is a theoretical \emph{hash function} whose output is uniformly distributed over the elements of $\Set{B}^\infty$.
