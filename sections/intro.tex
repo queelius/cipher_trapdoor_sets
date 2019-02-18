@@ -4,7 +4,31 @@
 \section{Introduction}
 The \emph{oblivious set}\cite{oset} is a fundamental data structure that may be used to construct other oblivious object types, like secure indices for Boolean Encrypted Search\cite{sibool}
 
-An \emph{oblivious set} is an oblivious object type for the abstract data type of the \emph{set}. The following operations are defined:
+An \emph{oblivious set} is an oblivious object type over 
+$(\PowerSet(\Set{U}),\Contains \colon \PowerSet(\Set{U}) \times \Set{U} \mapsto 
+\{\True,\False\})$, which means that the oblivious set \emph{obliviously} 
+represents values in the set $\PowerSet(\Set{U})$ over the member-of unary 
+operator $\Contains$.
+
+Suppose we have abstract data types $X$ and $Y$ and a pairing function
+\begin{equation}
+    X \times Y \mapsto \Tuple{X,Y}
+\end{equation}
+\begin{align}
+    X \mapsto X\\
+    X \mapsto Y\\
+    Y \mapsto Y\\
+    Y \mapsto X\\
+    X \times Y \mapsto X\\
+    X \times Y \mapsto Y\\
+\end{align}
+
+
+
+
+A \emph{regular function} over some abstract data type $X$ behaves the same way 
+if given any data structure that implements the behavior of $X$. 
+
 \begin{enumerate}
     \item Approximate membership tests of specific elements may be performed with a false positive rate $\fprate$ and a false negative rate $\fnrate$. Note that there is no way to efficiently iterate over the elements.
     

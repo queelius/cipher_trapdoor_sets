@@ -31,9 +31,11 @@
 \usepackage{siunitx}
 \usepackage{cleveref}
 \usepackage[margin=1in]{geometry}
+
 \usepackage[fancy]{setnotation}
 \usepackage{approxsetnotation}
 \usepackage{probabilitynotation}
+\usepackage{oblivioussetnotation}
 
 \hypersetup
 {
@@ -53,8 +55,9 @@
 
 \include{defs}
 \include{nomen}
+\loadglsentries{gloss.tex}
+\makeglossaries
 \makenomenclature
-\loadglsentries{gloss}
 
 \title
 {

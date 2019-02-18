@@ -5,6 +5,16 @@
 \appendixpage
 \addappheadtotoc
 \section{Probability mass of random bit length}
+% TODO: talk about a prefix bit string of size p such that there are
+% 2^p possible sequences, thus for sufficiently large p if we
+% randomly choose one and then marginalize, we have a sampling distribution
+% of positive approximate oblivious sets that approaches the distribution
+% of a random approximate set. As p goes to infinity, it converges in
+% distribution to the random approximate set distribution. Note that even if
+% p = 0, we still can treat it as an approximate set that quantifies our
+% uncertainty, but for the oblivious set we do not want a given objective
+% set to map to the same thing, we want it to have a distribution. The entropy
+% will be given by ?
 \begin{algorithm}
     \caption{Bit length sampler of \gls*{gls-shs}}
     \label{alg:sampler}
@@ -22,10 +32,11 @@
         $\Set{S} \gets \emptyset$\;
         \For{$i \gets 1$ \KwTo $m$}
         {
-            $x \gets $ randomly draw a bit string from $\Set{B}^{*}$ without replacement\;
+            $x \gets $ randomly draw a bit string from $\Set{B}^{*}$ without 
+            replacement\;
             $\Set{S} \gets \Set{S} \cup \{x\}$\;
         }    
-        $(h_k,b_n) \gets$ \MakeApproxSet{$\Set{S}$, $\fprate$}\;
+        $(h_k,b_n) \gets$ \MakeSingularHashSet{$\Set{S}$, $\fprate$}\;
         \Return $k + n + \mathcal{O}(1)$\;
     }
 \end{algorithm}
