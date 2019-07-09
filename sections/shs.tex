@@ -104,9 +104,7 @@ is a positive approximate oblivous set of $\Set{S}$ with a
 \emph{\gls{gls-fprate}} 
 \end{theorem}
 \begin{proof}
-In order for the \gls{gls-shs} to be an \gls{acr-pososet} 
-$\OPASet{S}(\fprate)$, it must also be a \gls{acr-posaset} $\PASet{S}(\fprate)$ 
-and thus must satisfy the two conditions given by \cref{def:approx_set}:
+In order for the \gls{gls-shs} to be a positive oblivious set $\OPASet{S}(\fprate)$, it must also be a \gls{acr-posaset} $\PASet{S}(\fprate)$ and thus must satisfy the two conditions given by \cref{def:approx_set}:
 \begin{enumerate}
     \item $\Set{S}$ is a subset of $\OPASet{S}$. This condition guarantees that 
     no \emph{false negatives} may occur.
@@ -231,9 +229,6 @@ To prove the second condition, suppose we have a set $\Set{S} = \{x_1,\ldots,x_m
                 }
                 \If{\found}
                 {
-                    \tcp{The product type of \gls{acr-shs} is any tuple
-                    in the set $\Set{B}^k \times the 
-                    data structure of the \gls{gls-shs}.}
                     \Return $(h_k, b_n)$\;
                 }
             }

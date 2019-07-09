@@ -3,6 +3,7 @@
 %\documentclass[a4paper,twocolumn,10pt]{article}
 \documentclass[final,11pt,hidelinks]{article}
 \usepackage[T1]{fontenc} % optional
+\usepackage{lmodern}
 \usepackage[english]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
@@ -34,8 +35,10 @@
 
 \usepackage[fancy]{setnotation}
 \usepackage{approxsetnotation}
+\usepackage{relationnotation}
 \usepackage{probabilitynotation}
-\usepackage{oblivioussetnotation}
+\usepackage{obliviousnotation}
+\usepackage[section]{envnotation}
 
 \hypersetup
 {
@@ -55,8 +58,10 @@
 
 \include{defs}
 \include{nomen}
-\loadglsentries{gloss.tex}
 \makeglossaries
+
+\loadglsentries{gls-oblivious.tex}
+\loadglsentries{gls-approxset.tex}
 \makenomenclature
 
 \title

@@ -2,7 +2,7 @@
 \PassOptionsToPackage{naturalnames}{hyperref}
 
 \newcommand{\catop}{\mathbin{+\mkern-10mu+}}
-\newcommand{\ith}{$i^{\text{th }}$}
+%\newcommand{\ith}{$i^{\text{th }}$}
 \newcommand{\jth}{$j^{\text{th }}$}
 \newcommand{\kth}{$k^{\text{th }}$}
 \newcommand{\nth}{$n^{\text{th }}$}
@@ -14,8 +14,8 @@
 
 \newcommand*{\defeq}{\stackrel{\text{def}}{=}}
 
-\DeclareMathOperator*{\argmax}{arg\,max}
-\DeclareMathOperator*{\argmin}{arg\,min}
+%\DeclareMathOperator*{\argmax}{arg\,max}
+%\DeclareMathOperator*{\argmin}{arg\,min}
 
 \SetKwFunction{hash}{h}
 \SetKwFunction{ph}{ph}
@@ -39,8 +39,8 @@
 \SetKwFunction{concat}{concatenate}
 \SetKwFunction{sampler}{bit\_length\_sampler}
 
-\newcommand{\p}{p}
-\newcommand{\n}{n}
+%\newcommand{\p}{p}
+%\newcommand{\n}{n}
 
 \SetKw{True}{true}
 \SetKw{False}{false}
@@ -56,42 +56,6 @@
 \RestyleAlgo{ruled}
 \LinesNumbered
 
-\newcounter{equationstore}
-\AtBeginEnvironment{proof}{\setcounter{equationstore}{\value{equation}}
-\setcounter{equation}{0}\renewcommand{\theequation}{\alph{equation}}}
-\AtEndEnvironment{proof}{\setcounter{equation}{\value{equationstore}}}
-
-\newcounter{examplecounter}
-\newenvironment{example}
-{
-    \begin{quote}%
-    \refstepcounter{examplecounter}%
-    \textbf{Example \arabic{examplecounter}}%
-    \quad
-}
-{%
-    \end{quote}%
-}
-
-\newcounter{equationex}
-\AtBeginEnvironment{example}{\setcounter{equationex}{\value{equation}}
-\setcounter{equation}{0}\renewcommand{\theequation}{\alph{equation}}}
-\AtEndEnvironment{example}{\setcounter{equation}{\value{equationex}}}
-
-\theoremstyle{plain}
-\newtheorem{theorem}{Theorem}
-\newtheorem{corollary}{Corollary}
-\newtheorem{definition}{Definition}
-\newtheorem{postulate}{Postulate}
-\newtheorem{assumption}{Assumption}
-\newtheorem{conjecture}{Conjecture}
-
-%\theoremstyle{definition}
-%\newtheorem{example}{Example}
-
-\theoremstyle{remark}
-\newtheorem*{remark}{Remark}
-\newtheorem*{notation}{Notation}
 
 \setglossarystyle{list}
 %\glsdisablehyper
