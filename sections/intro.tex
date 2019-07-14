@@ -5,26 +5,23 @@
 The \emph{oblivious set}\cite{oset} is a fundamental data structure that may be used to construct other oblivious object types, like secure indices for Boolean Encrypted Search\cite{sibool}
 
 An \emph{oblivious set} is an oblivious object type over 
-$(\PowerSet(\Set{U}),\Contains \colon \PowerSet(\Set{U}) \times \Set{U} \mapsto 
-\{\True,\False\})$, which means that the oblivious set \emph{obliviously} 
-represents values in the set $\PowerSet(\Set{U})$ over the member-of unary 
-operator $\Contains$.
+$(\PS{\Set{U}},\SetContains)$, which means that the oblivious set represents values in the set $\PS{\Set{U}}$ over the binary \emph{member-of} predicate $\SetContains \colon \Set{U} \times \PS{\Set{U}} \mapsto \{0,1\}$.
 
-Suppose we have abstract data types $X$ and $Y$ and a pairing function
+Suppose we have data types $X_1,X_2,\ldots,X_n$ and a surjective pairing function
 \begin{equation}
-    X \times Y \mapsto \Tuple{X,Y}
+    \PFun{f} \colon \NatSet^2 \mapsto \NatSet\,.
 \end{equation}
+Recursively, the $n$-tuple encoding function $\PFun{g}[n] \colon \NatSet^n \mapsto \NatSet$ may be defined as
 \begin{align}
-    X \mapsto X\\
-    X \mapsto Y\\
-    Y \mapsto Y\\
-    Y \mapsto X\\
-    X \times Y \mapsto X\\
-    X \times Y \mapsto Y\\
+	\PFun{g}[2](x_1,x_2)		&\coloneqq \PFun{f}(x_1, x_2)\\
+	\PFun{g}[n](x_1,\ldots,x_n) &\coloneqq \PFun{f}(x_1, \PFun{g}[n-1](x_2,\ldots,x_n))\,.
 \end{align}
 
-
-
+Assuming we have a serializer $\PFun{h}[j] \colon X_j \mapsto \NatSet$ for $j=1,\ldots,n$, an encoder for tuples of typle $X_1 \times \cdots \times X_n$ is given by
+\begin{equation}
+	\PFun{encode}(X_1,\ldots,X_n) \coloneqq \PFun{g}[n](\PFun{h}[1](X_1),\ldots,\PFun{h}[n](X_n))\,.
+\end{equation}
+Now, we may use any random approximate set over the natural numbers to represent any $n$-tuple relation.
 
 A \emph{regular function} over some abstract data type $X$ behaves the same way 
 if given any data structure that implements the behavior of $X$. 
