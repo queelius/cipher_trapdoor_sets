@@ -31,12 +31,10 @@ To be a minimally \emph{useful}, $\OSet{S}$ must permit \emph{membership tests} 
 
 Note that an oblivious set where elements are from the universe $\Set{U}$ permits membership tests on elements in $\Set{U}$.
 These elements, and the universe $\Set{U}$, are \emph{not} necessarily oblivious types.
-It is also possible to have an oblivious set over oblivious elements, where the elements have their own set of separate constraints, e.g., maybe you can perform less-than $<$ and equality $=$ comparisons on elements of $\OSet{U}$, which may be sufficient to allow for oblivious sets of these oblivious elements. The oblivious set, of course, only allows \emph{membership} tests to be performed on elements over $\OSet{U}$.
-
+It is also possible to have an oblivious set over oblivious elements, where the elements have their own set of separate constraints, e.g., an oblivious type $X$ in which only the less-than and equality predicates are possible.
+The oblivious set, of course, only allows \emph{membership} tests to be performed on elements over $\OSet{U}$.
 
 In what follows, we provide a formal specification of the abstract data type of the oblivious set.
-
-
 
 \subsection{Oblivious object types}
 A \emph{type} is a set and the elements of the set are called the \emph{values} of the type. An \emph{abstract data type} is a type and a set of operations on values of the type. For example, the \emph{integer} abstract data type is defined by the set of integers and standard operations like addition and subtraction. A \emph{data structure} is a particular way of organizing data and may implement one or more abstract data types.
