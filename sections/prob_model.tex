@@ -21,45 +21,6 @@ Given a set $\Set{S}$ with $m$ positives, the number of \emph{false negatives} w
 \end{equation}
 \end{theorem}
 
-The \emph{expected} cardinality is given by the following theorem.
-\begin{theorem}[Cardinality]
-Given a set $\Set{S}$ of cardinality $m$ from a universe of $u$ elements, an approximate set $\ASet{S}$ has an \emph{expected} cardinality given by
-\begin{equation}
-\label{eq:exp_card}
-    u \fprate + m (1 - \fprate - \fnrate)\,,
-\end{equation}
-where $\fprate$ is the false positive rate and $\fnrate$ is the false negative rate.
-\end{theorem}
-
-\subsection{Positives and negatives}
-The distribution of false positives and false negatives are Bernoulli distributed random variables conditioned on a particular number of positives. The distribution of positives (and negatives) is given by the following definition.
-\begin{definition}
-The number of \emph{positives} in a universe of $u$ elements is uncertain. We model the uncertainty as a discrete random variable, denoted by $\RV{P}$, with a probability mass function\footnote{The probability mass function of a random variable $\RV{X}$ is denoted by $\PDF{\,\cdot\,}[\RV{X}]$.}
-\begin{equation}
-    \PDF{p \Given u}[\RV{P}]
-\end{equation}
-and a support $\{0,\ldots,u\}$. Conversely, the distribution of negatives is a random variable $\RV{N} = u - \RV{P}$ with a probability mass function
-\begin{equation}
-    \PDF{n \Given u}[\RV{N}] = \PDF{u - n \Given u}[\RV{P}]\,.
-\end{equation}
-\end{definition}
-The form the probability mass function $\PDF{\,\cdot\,}[\RV{P}]$ takes cannot be a priori specified, although it may be estimated with an empirical probability.
-
-Modeling the distribution of positives provides a complete specification for the distribution of false positives and false negatives (and true positives and true negatives).
-\begin{example}
-The \emph{expected} number of false positives is give by the expectation
-\begin{align}
-    \Expect{\FP}
-        &= \sum_{p=0}^{u} \sum_{f_p=0}^{u - p} f_p \cdot \PDF{p \Given u}[\RV{P}] \PDF{f_p \Given p, u, \fprate}[\FP]\\
-        &= \sum_{p=0}^{u} \PDF{p \Given u}[\RV{P}] \Expect{\FP_p \Given u} = \sum_{p=0}^{u} \PDF{p \Given u}[\RV{P}](u-p) \fprate\\
-        &= \fprate\left(u - \sum_{p=0}^{u} m \PDF{p \Given u}[\RV{P}]\right) = \fprate\left(u - \Expect{\RV{P}}\right)\,.
-\end{align}
-Note that $\Expect{\RV{N}} = u - \Expect{\RV{P}}$, thus
-\begin{equation}
-    \Expect{\FP} = \fprate \Expect{\RV{N}}\,.
-\end{equation}
-\end{example}
-
 The joint probability mass function of positives, false positives, and false negatives is given by
 \begin{equation}
     \PDF{p, f_p, f_n \Given u, \fprate, \fnrate} = \PDF{p \Given u}[\RV{P}] \PDF{f_p \Given p, u, \fprate}[\FP] \PDF{f_n \Given p, u, \fnrate}[\FN]\,.

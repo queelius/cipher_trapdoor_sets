@@ -2,6 +2,8 @@
 %\documentclass[conference]{IEEEtran}
 %\documentclass[a4paper,twocolumn,10pt]{article}
 \documentclass[final,11pt,hidelinks]{article}
+\newcommand\hmmax{0}
+\newcommand\bmmax{0}
 \usepackage[T1]{fontenc} % optional
 \usepackage{lmodern}
 \usepackage[english]{babel}
@@ -31,6 +33,7 @@
 \usepackage[square,numbers]{natbib}
 \usepackage{siunitx}
 \usepackage{cleveref}
+\usepackage{pgfplots}
 \usepackage[margin=1in]{geometry}
 
 \usepackage[fancy]{setnotation}
@@ -39,10 +42,11 @@
 \usepackage{probabilitynotation}
 \usepackage{obliviousnotation}
 \usepackage[section]{envnotation}
+\usepackage{algorithmnotation}
 
 \hypersetup
 {
-    pdftitle={The Oblivious Set abstract data type}, % title
+    pdftitle={Free semigroup ciphers}, % title
     pdfauthor={Alexander Towell},               % author
     pdfsubject={computer science},              % subject of the document
     pdfkeywords={
@@ -56,8 +60,23 @@
     urlcolor=green                              % color of external links
 }
 
-\include{defs}
-\include{nomen}
+\setglossarystyle{list}
+%\glsdisablehyper
+
+\bibliographystyle{plainnat}
+
+\usetikzlibrary{arrows,shapes,positioning}
+\usetikzlibrary{calc,decorations.markings}
+
+\graphicspath{{img/}} 
+
+\definecolor{ltgray}{rgb}{0.6,0.6,0.6}
+\newcommand\mycommfont[1]{\footnotesize\ttfamily\textcolor{ltgray}{#1}}
+\SetCommentSty{mycommfont}
+
+
+%\include{defs}
+%\include{nomen}
 \makeglossaries
 
 \loadglsentries{gls-oblivious.tex}
@@ -66,7 +85,7 @@
 
 \title
 {
-    The \emph{Oblivious Set} abstract data type
+    Free semi-group ciphers
 }
 \author
 {
@@ -91,18 +110,13 @@ We define the semantics of abstract data type for the \emph{oblivious set}. We d
 
 \subfile{sections/intro}
 \subfile{sections/ob_set}
-\subfile{sections/prob_model}
-\subfile{sections/entropy}
+%\subfile{sections/prob_model}
 
-\section{Set estimators}
-\label{sec:estimators}
-\subfile{sections/estimators}
-
-\section{The \emph{Singular Hash Set}}
-\label{sec:shs}
+\subfile{sections/bool_alg}
+\subfile{sections/bool_rng}
 \subfile{sections/shs}
 
-\subfile{sections/appendix}
+%\subfile{sections/appendix}
 \printglossary
 \bibliography{references}
 \end{document}

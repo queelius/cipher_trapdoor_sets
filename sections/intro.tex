@@ -7,7 +7,17 @@ The \emph{oblivious set}\cite{oset} is a fundamental data structure that may be 
 An \emph{oblivious set} is an oblivious object type over 
 $(\PS{\Set{U}},\SetContains)$, which means that the oblivious set represents values in the set $\PS{\Set{U}}$ over the binary \emph{member-of} predicate $\SetContains \colon \Set{U} \times \PS{\Set{U}} \mapsto \{0,1\}$.
 
-Suppose we have data types $X_1,X_2,\ldots,X_n$ and a surjective pairing function
+\begin{definition}[$n$-fold Cartesian product]
+Let $\Set{X}[1],\ldots,\Set{X}[n]$ denote $n$ sets.
+The set
+\begin{equation}
+\Set{X}[1] \times \cdots \times \Set{X}[n] \coloneqq \left\{(x_1,\ldots,x_n) \colon x_1 \in \Set{X}[1] \land \cdots \land x_n \in \Set{X}[n]\right\}
+\end{equation}
+is called the Cartesian product of sets $\Set{X}[1],\ldots,\Set{X}[n]$.
+\end{definition}
+A shorthand notation for the Cartesian product $\Set{X} \times \Set{X} \times \Set{X}$ is denoted by $\Set{X}^3$.
+
+Suppose we have sets $\Set{X}[1],\Set{X}[2],\ldots,\Set{X}[n]$ and a surjective pairing function
 \begin{equation}
     \PFun{f} \colon \NatSet^2 \mapsto \NatSet\,.
 \end{equation}
