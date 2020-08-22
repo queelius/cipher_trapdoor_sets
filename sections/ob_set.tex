@@ -39,7 +39,11 @@ The binary set $\{0,1\}$ is denoted by $\BitSet$. The set of all bit (binary) st
 \begin{equation}
 \Card{\BitSet^n} = 2^n\,.
 \end{equation}
-The set of all bit strings of length $n$ or less is denoted by $\BitSet^{\leq n}$, which has a cardinality $2^{n+1}-1$. The countably infinite set of all bit strings, $\BitSet^{\leq \infty}$, is also denoted by $\BitSet^{*}$.
+The set of all bit strings of length $n$ or less is denoted by $\BitSet^{\leq n}$, which has a cardinality $2^{n+1}-1$.
+
+The countably infinite set of all bit strings, $\BitSet^{\leq \infty}$, is also denoted by $\BitSet^*$.
+$\BitSet^*$ is the free semigroup over $\BitSet$ which is closed over concatenation $\cat \colon {\BitSet^*} \times {\BitSet^*} \mapsto {\BitSet^*}$.
+
 
 The bit length of an object $x$ is denoted by
 \begin{equation}
@@ -47,31 +51,30 @@ The bit length of an object $x$ is denoted by
 \end{equation}
 e.g., the bit length of any $x \in \BitSet^n$ is $\BL(x) = n$.
 
-A (convenient) one-to-one correspondence between $\BitSet$ and $\NatSet$ is given by the following definition.
+A (convenient) one-to-one correspondence is given by the following definition.
 \begin{definition}
-	\label{def:mapping}
-	Let the set of bit strings $\BitSet^{*}$ and the set of natural numbers 
-	$\NatSet$ have the bijection given by
-	\begin{equation}
+\label{def:mapping}
+The free semigroup $\BitSet^{*}$ and the set of natural numbers $\NatSet$ have the bijection $' \colon \BitSet^* \mapsto \NatSet$ and $' \colon \NatSet \mapsto \BitSet^*$ defined as
+\begin{equation}
 	(b_1 \, b_2 \, \cdots \, b_m) \longleftrightarrow 2^m + \sum_{j=1}^{m} 2^{m - j} b_j\,.
-	\end{equation}
-	We denote the mapping of a bit string (or natural number) $x$ by $x'$.
+\end{equation}
+We denote the mapping of a bit string (or natural number) $x$ by $x'$.
 \end{definition}
 An important observation of this mapping is that a natural number $n$ maps to a bit string $n'$ of length $\BL(n') = \lfloor \log_2 n \rfloor$.
 
-\subsection{Oblivious object types}
+\subsection{Cipher object types}
 A \emph{type} is a set and the elements of the set are called the \emph{values} of the type.
 An \emph{abstract data type} is a type and a set of operations on values of the type.
 For example, the \emph{integer} abstract data type is defined by the set of integers and standard operations like addition and subtraction.
 A \emph{data structure} is a particular way of organizing data and may \emph{model} one or more abstract data types.
 
-Suppose we have an abstract data type denoted by $T$ with a set of operators $\Set{F}$ denoted the \emph{computational basis} that are (at least partially) functions of $T$.
+Suppose we have an abstract data type denoted by $T$ with a \emph{computational basis} $\Set{F}$ that are (at least partially) functions of $T$.
 We denote that an \emph{object} $x$ in computer memory models $T$ by $T(x)$.
 
-An \emph{oblivious} object type\cite{obtype} that models $T$ is a related type denoted by $\OT{T}$ that provides guarantees about what can be learned about an object $\OT{x}$ by observing its representation, memory access patterns, or any other possible correlations.
+A \emph{cipher object type}\cite{obtype} that models $T$ is a related type denoted by $\OT{T}$ that provides guarantees about what can be learned about $x$ by observing the representation, memory access patterns, or any other possible correlations with respect to $\OT{x}$.
 
 Optimally, the only information that can be learned about $\OT{x}$ is given by the well-defined \emph{behavior} of the the abstract data type $T$ on a subset of its computational basis $\Set{F}$.\footnote{
-Frequently, some operations may reveal too much information about the values and so are excluded from the computational basis of the oblivious type.}
+Frequently, some procedures may reveal too much information about the values and so are excluded or defined in a different way in the computational basis of the cipher type.}
 For instance, say an operator $\Fun{g} \colon T \mapsto \BitSet$ is not in the computational basis of $\OT{T}$, i.e., $\Fun{g} \colon \OT{T} \mapsto \BitSet$ is undefined.
 Suppose $\Fun{g}(x) = 1$ for a particular object of $T$ and half of the inputs map to $1$ (and half map to $0$).
 If the only information we have about $x$ is given by $\OT{x}$, then $\Prob{\Fun{g}(\OT{x})=1} = 0.5$, i.e., we can do no better than a random guess.

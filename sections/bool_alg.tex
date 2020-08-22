@@ -7,6 +7,9 @@
 
 \begin{document}
 \section{Cipher Boolean algebras}
+TODO: mention the order of the model. xor-set is a higher-order model on equality. No easy solution there.
+The other union set one is a second-order $\pm$ model i believe.
+
 \emph{Cipher} value types may come in many shapes.
 They may be parametric types, e.g., $\OT{T}$ is a cipher type of plain type $T$ and they may provide differing levels of \emph{confidentiality}, whether as a simple substitution cipher, homophonic cipher, or homomorphic encryption.
 
@@ -16,19 +19,18 @@ Both, however, model their relations as predicate functions which return \emph{p
 NOTE: If using something like homophonic encryption, then identity is no longer maintained. A cipher set $\OT{\Set{A}}$ sent in one round may be different is \emph{incomparable} to a cipher set $\OT{\Set{A}}$ sent in another round. 
 
 NOTE 2: When, say, including bigrams (for whatever reason), if we want to be able to construct a cipher bigram from two cipher elements on the untrusted system, then in the cipher map or set on the untrusted system, all of these combinations must be included separately (unless rate-distorted, in which case errors). Since this may limit its value, we can not support these operations and just go 
-
+...
 and we wish  with these cipher sets, then identity is no longer provided for by the information in the sets alone. See \emph{approximate maps} or \emph{approximate sets}.
 
 
 
 
-Say we have the Boolean algebra
+Suppose we have the Boolean algebra
 \begin{equation}
-	A \coloneqq \left(\PS{\BitSet*}, \SetUnion, \SetIntersection, \SetComplement, \EmptySet, {\BitSet*}\right)
+	A \coloneqq \left(\PS{\BitSet*}, \SetUnion, \SetIntersection, \SetComplement, \EmptySet, {\BitSet^*}\right)
 \end{equation}
-where $\BitSet^*$ is the free semigroup over $\BitSet$, which is the closure over concatenation $\cat \colon {\BitSet*} \times {\BitSet*} \mapsto {\BitSet*}$.
 
-Since $\BitSet*$ can encode any tuple of elements, and $\PS{\BitSet*}$ can encode any sum type of tuples, this Boolean algebra may be a reasonable model for hashing algebraic data types, while still permitting some operations on the resultant hash.
+Since $\BitSet^*$ can encode any tuple of elements, and $\PS{\BitSet^*}$ can encode any sum type of tuples, this Boolean algebra may be a reasonable model for hashing algebraic data types, while still permitting some operations on the resultant hash.
 
 Consider the Boolean algebra
 \begin{equation}
