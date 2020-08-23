@@ -5,6 +5,7 @@
 !/.gitignore
 
 /build* 
+main.pdf
 *.log
 *.out
 *.fls
