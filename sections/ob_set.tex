@@ -11,28 +11,21 @@ A set is an unordered collection of distinct elements from a universe of element
 
 A countable set is a \emph{finite set} or a \emph{countably infinite set}. A \emph{finite set} has a finite number of elements. For example,
 \[
-    \Set{S} = \{ 1, 3, 5 \}
+    \Set{A} = \{ 1, 3, 5 \}
 \]
 is a finite set with three elements. A \emph{countably infinite set} can be put in one-to-one correspondence with the set of natural numbers
 \begin{equation}
     \NatSet = \{1,2,3,4,5,\ldots\}\,.
 \end{equation}
 
-The cardinality of a set $\Set{S}$ is a measure of the number of elements in the set, denoted by
+The cardinality of a set $\Set{B}$ is a measure of the number of elements in the set, denoted by
 \begin{equation}
-    \Card{\Set{S}}\,.
+    \Card{\Set{B}}\,.
 \end{equation}
 The cardinality of a \emph{finite set} is a non-negative integer and counts the number of elements in the set, e.g.,
 \[
     \Card{\left\{ 1, 3, 5\right\}} = 3\,.
 \]
-
-Informally, a cipher set of $\Set{S}$, denoted by $\OT{\Set{S}}$, provides a \emph{confidential} in-place binary representation such that very little information about $\Set{S}$ is disclosed.
-
-Note that an oblivious set where elements are from the universe $\Set{U}$ permits membership tests on elements in $\Set{U}$.
-These elements, and the universe $\Set{U}$, are \emph{not} necessarily oblivious types.
-It is also possible to have an oblivious set over oblivious elements, where the elements have their own set of separate constraints, e.g., an oblivious type $X$ in which only the less-than and equality predicates are possible.
-The oblivious set, of course, only allows \emph{membership} tests to be performed on elements over $\OT{\Set{U}}$.
 
 \subsection{Notation}
 The binary set $\{0,1\}$ is denoted by $\BitSet$. The set of all bit (binary) strings of length $n$ is therefore $\BitSet^n$. The cardinality of $\BitSet^n$ is
@@ -43,7 +36,6 @@ The set of all bit strings of length $n$ or less is denoted by $\BitSet^{\leq n}
 
 The countably infinite set of all bit strings, $\BitSet^{\leq \infty}$, is also denoted by $\BitSet^*$.
 $\BitSet^*$ is the free semigroup over $\BitSet$ which is closed over concatenation $\cat \colon {\BitSet^*} \times {\BitSet^*} \mapsto {\BitSet^*}$.
-
 
 The bit length of an object $x$ is denoted by
 \begin{equation}
@@ -76,11 +68,29 @@ We denote that an \emph{object} $x$ in computer memory models $T$ by $T(x)$.
 
 A \emph{cipher object type}\cite{obtype} that models $T$ is a related type denoted by $\OT{T}$ that provides guarantees about what can be learned about $x$ by observing the representation, memory access patterns, or any other possible correlations with respect to $\OT{x}$.
 
-Optimally, the only information that can be learned about $\OT{x}$ is given by the well-defined \emph{behavior} of the the abstract data type $T$ on a subset of its computational basis $\Set{F}$.\footnote{
+Optimally, the only information that can be learned about $\OT{x} \coloneqq \OT{T(x)}$ is given by the well-defined \emph{behavior} of the the abstract data type $T$ on a subset of its computational basis $\Set{F}$.\footnote{
 Frequently, some procedures may reveal too much information about the values and so are excluded or defined in a different way in the computational basis of the cipher type.}
 For instance, say an operator $\Fun{g} \colon T \mapsto \BitSet$ is not in the computational basis of $\OT{T}$, i.e., $\Fun{g} \colon \OT{T} \mapsto \BitSet$ is undefined.
-Suppose $\Fun{g}(x) = 1$ for a particular object of $T$ and half of the inputs map to $1$ (and half map to $0$).
+Suppose $\Fun{g}(x) = 1$ for a particular object of $T$ and half of the inputs map to $1$ (and the other half map to $0$).
 If the only information we have about $x$ is given by $\OT{x}$, then $\Prob{\Fun{g}(\OT{x})=1} = 0.5$, i.e., we can do no better than a random guess.
+
+We consider cipher objects that model the \emph{set-indicator} functions, i.e.,
+\begin{equation}
+    (\PS{\Set{X}}, \SetContains)\,.
+\end{equation}
+The set-membership function $\SetContains$ over elements of type $\PS{\Set{X}}$ is sufficient to model the Boolean algebra $(\Set{X},...)$.
+
+Informally, a cipher set of $\Set{C}$, denoted by $\OT{\Set{C}}$, provides a \emph{confidential} in-place binary representation such that very little information about $\Set{C}$ is disclosed.
+
+Note that the cipher type $(\PS{\Set{X}}, \SetContains)$ consists of elements from the universal set $\Set{X}$.
+These elements, and the universe $\Set{X}$, are \emph{not} necessarily oblivious types.
+If $U$ models values of the universal set $\Set{X}$, then 
+
+It is also possible to have an oblivious set over oblivious elements, where the elements have their own set of separate constraints, e.g., an oblivious type $X$ in which only the less-than and equality predicates are possible.
+The oblivious set, of course, only allows \emph{membership} tests to be performed on elements over $\OT{\Set{X}}$.
+
+
+
 
 We consider random approximate cipher sets of the type $\AT{\OTL{\PS{\OT{\Set{X}}}}}$ where $\Set{X}$ is the underlying universal set of elements, i.e., cipher sets whose bit string representations are uncorrelated with its specific members over cipher elements, frequently denoted \emph{trapdoors}.
 This is opposed to, say, $\PS{\OT{\Set{X}}}$ in which we have a regular set over ciphers elements of type $\Set{X}$, or $\OTL{\PS{\Set{X}}}$ cipher sets over elements of type $\Set{X}$.

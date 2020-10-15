@@ -40,7 +40,7 @@ and suppose we wish to provide a homomorphism of type $A \mapsto B$ that, approx
 
 A \emph{cryptographic hash function} is given by the following definition.
 \begin{definition}
-	The \emph{hash function} $\hash \colon {\BitSet*} \mapsto \BitSet^m$ maps (hashes) bit
+	The \emph{hash function} $\hash \colon {\BitSet^*} \mapsto \BitSet^m$ maps (hashes) bit
 	strings of arbitrary-length to bit strings of fixed-length $m$ and approximates
 	a \emph{random oracle} over its codomain.
 \end{definition}
@@ -50,12 +50,12 @@ The homomorphism $\Fun{F} \colon A \mapsto B$ is defined as
 \begin{equation}
 \Fun{F}(\beta) \coloneqq
 \begin{cases} 
-	\quad \hash(x) 		& \qquad \beta \in {\BitSet*}\\
+	\quad \hash(\beta) 		& \qquad \beta \in {\BitSet^*}\\
 	\quad \lor 			& \qquad \beta = \SetUnion \\
 	\quad \land 		& \qquad \beta = \SetIntersection\\
 	\quad \neg			& \qquad \beta = \SetComplement\\
 	\quad 0^m			& \qquad \beta = \EmptySet\\
-	\quad 1^m			& \qquad \beta = {\BitSet*}\,,
+	\quad 1^m			& \qquad \beta = {\BitSet^*}\,,
 \end{cases}
 \end{equation}
 where $\lor$, $\land$, and $\neg$ are respectively bitwise \emph{or}, \emph{and}, and \emph{negation}.
