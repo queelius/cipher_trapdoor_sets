@@ -1,0 +1,106 @@
+
+
+Reading about onion routing and traffic analysis, modifying response times and such to see changes in traffic, made me realize:
+    (a) Reinforces earlier point: oblivious set, when constructed for a set A, then the fp and fn rates are suppose to be a constraint, an adversary shouldn't be able to know better than that when checking an element for membership. however, if the adversary takes the powerset of elements, and tries "plausible" sets in this powerset, and generates an oblivious set for each and finds one that has an identical serialization to the oblivious set.
+
+
+-p log v, v = 2^-1, then p bits on avg. there are 2^p bit patterns possible. suppose the size of the universe is 8, then there are (8 choose p) possible sets of size p. so, this means that 8!/p!(8-p)! possible sets of size p are expected to map to 2^p bits. 
+
+let p = 1
+(8-p)!p!2^p/8!
+
+
+powerset: {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}
+
+bit patterns: 00, 01, 10, 11
+
+suppose
+    {1} -> 00, {2} -> 00,
+    {3} -> 01, {4} -> 01, 
+    {5} -> 10, {6} -> 10, 
+    {7} -> 11, {8} -> 11, 
+
+and suppose we are given an approximate set with bit pattern 00. what does this tell us?
+that the target set we wish to find out about is either {1} or {2} with equal probability.
+
+suppose target set is truthfully {1}. then, we can discard {3}, {4}, ..., {8} as not possible elements, and really we can just say that approx set is {1,2}. then, fpr = fp/fp+tn = 1/6, which is LOWER than 1/2.
+
+maybe the way around this is to realize that that's just an expected bit length. it can vary from 0 to maybe k with an expectation 2.
+
+
+then 7!2/8!=2/8=1/4 or in other words the bit patterns are 1/4th the number of the possible sets. so, each bit pattern is on average mapped to 4 times. if algorithm for ob set uniformly distributes over the bit patterns, then it is expected that each pattern will be mapped to 4 times. or if deterministic algorithm, each bit pattern is mapped to 4 times.
+
+this UNIFORMLY distributed property has a nice feature: it makes it harder to find a set that will "collide" with another set. if such a collision can be found, that makes it possible for an adversary to potentially learn more about the 
+
+
+
+Working on oblivious data structure paper made me realize:
+    (1) talk about the oblivious set that has maximum uncertainty (max entropy) given the constraints, like expected fp rate. Given this max entropy oblivious set, we can talk about the absolute efficiency as a function of the expectations/constraints.
+
+
+
+
+-----
+singular hash set is theoretical, not practical; shows what optimality for approx oblivious sets is. so, a secure index in encrypted search can really do no better than this, and of course, since encrypted search, the value mapped to should probably have some uncertainty (e.g., either words have an uncertain range explicitly modeled, or the words have an error in range based on the uncertainty, i.e., implicitly modeled).
+
+---
+make the figure 1 singular hash set into an approximate set, showing
+false positives and false negatives also.
+
+---
+maximum entropy abstract data type for approximate map.
+
+parameterize it by mapping a key to a self-terminating bit string. this is the assumption. that is, the bit string by itself, does the work.
+
+an optimal approximate map can be constructed like so...
+
+---
+
+maximum entorpy coder. each bit is 0 or 1 with equiprobability. the only non-uniform distribution is the random variable N, which has a pmf given by if finding the lower-bound on expected space complexity.
+
+
+
+
+
+if estimate of cardinality is uniformly between 0 and t, approximately, then if it's 0, that means it's a null set. This may make sense since null sets are legitimate. with respect to si's, it essentially means "artificial secure index". if we don't know how many artificial indexes there are, then we can say there is between 0 and |db| si's in the db.
+
+
+
+
+
+
+
+
+
+integrate wit oblivious map (set as a special case). use sing. hash map instead, and u = 0 as a special case for shmap.
+
+what is ob set? list criteria.
+
+what is expected false negative rate given r out of m? may be different han 1-r/m since alg. stops once finds r or more sings.
+
+
+----
+Entropy stuff in approx_set_adt paper belongs in this oblivious_set_* paper INSTEAD. more relevant. and ob set is also approx set, so specialization focuses more on that stuff.
+
+
+P[X in OS* | binary representation]
+
+
+
+Suppose we know fp rate v but not m.
+
+The lower bound is
+    -m log v bits
+
+So if we have a data structure that is k bits, then:
+
+    k = -m log v => m = -k / log v
+
+This is lower bound though. Suppose we know, by kirchoff's principle, the space required for a particular implementation. Say it's M(m | v). Then,
+    k = M(m | v) => m = inv(M)(k | v)
+
+Suppose this is deterministic, i.e., m is exactly inv(M)(k | v). Then, we know the cardinality of S.
+
+This may be an expected size, so m is the expected size. The details matter. So, k is a discrete random variable denoted by K.
+
+    

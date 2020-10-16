@@ -1,0 +1,130 @@
+\documentclass[ ../main.tex]{subfiles}
+
+\SetKwFunction{MakeSingularHashSet}{make\_singular\_hash\_set}
+\SetKwFunction{Encode}{encode}
+
+\providecommand{\mainx}{..}
+
+\begin{document}
+\section{Cipher Boolean algebras}
+\emph{Cipher} value types may come in many shapes.
+They may be parametric types, e.g., $\OT{T}$ is a cipher type of plain type $T$ and they may provide differing levels of \emph{confidentiality}, whether as a simple substitution cipher, homophonic cipher, or homomorphic encryption.
+
+In what follows, we consider several ciphers sets, one in which is a Boolean algebra that provides for all set relations like \emph{membership}, \emph{identity}, and \emph{subset}, and the other is a group over symmetric difference and intersection but only offers the \emph{identity} relation (or only one its representations in a, say, homophonic encryption system).
+Both, however, model their relations as predicate functions which return \emph{plaintext} Booleans rather than cipher variations, i.e., $\BitSet$ as opposed to the more confidential $\OT{\BitSet}$.
+
+NOTE: If using something like homophonic encryption, then identity is no longer maintained. A cipher set $\OT{\Set{A}}$ sent in one round may be different is \emph{incomparable} to a cipher set $\OT{\Set{A}}$ sent in another round. 
+
+NOTE 2: When, say, including bigrams (for whatever reason), if we want to be able to construct a cipher bigram from two cipher elements on the untrusted system, then in the cipher map or set on the untrusted system, all of these combinations must be included separately (unless rate-distorted, in which case errors). Since this may limit its value, we can not support these operations and just go 
+
+and we wish  with these cipher sets, then identity is no longer provided for by the information in the sets alone. See \emph{approximate maps} or \emph{approximate sets}.
+
+
+
+
+Say we have the Boolean algebra
+\begin{equation}
+	A \coloneqq \left(\PS{\BitSet*}, \SetUnion, \SetIntersection, \SetComplement, \EmptySet, {\BitSet*}\right)
+\end{equation}
+where $\BitSet^*$ is the free semigroup over $\BitSet$, which is the closure over concatenation $\cat \colon {\BitSet*} \times {\BitSet*} \mapsto {\BitSet*}$.
+
+Since $\BitSet*$ can encode any tuple of elements, and $\PS{\BitSet*}$ can encode any sum type of tuples, this Boolean algebra may be a reasonable model for hashing algebraic data types, while still permitting some operations on the resultant hash.
+
+Consider the Boolean algebra
+\begin{equation}
+	B \coloneqq \left(\BitSet^m, \lor, \land, \neg, 0^m, 1^m\right)
+\end{equation}
+and suppose we wish to provide a homomorphism of type $A \mapsto B$ that, approximately, preserves relations while \emph{obscuring} or \emph{encrypting} the identities.
+
+A \emph{cryptographic hash function} is given by the following definition.
+\begin{definition}
+	The \emph{hash function} $\hash \colon {\BitSet*} \mapsto \BitSet^m$ maps (hashes) bit
+	strings of arbitrary-length to bit strings of fixed-length $m$ and approximates
+	a \emph{random oracle} over its codomain.
+\end{definition}
+
+\begin{definition}
+The homomorphism $\Fun{F} \colon A \mapsto B$ is defined as
+\begin{equation}
+\Fun{F}(\beta) \coloneqq
+\begin{cases} 
+	\quad \hash(x) 		& \qquad \beta \in {\BitSet*}\\
+	\quad \lor 			& \qquad \beta = \SetUnion \\
+	\quad \land 		& \qquad \beta = \SetIntersection\\
+	\quad \neg			& \qquad \beta = \SetComplement\\
+	\quad 0^m			& \qquad \beta = \EmptySet\\
+	\quad 1^m			& \qquad \beta = {\BitSet*}\,,
+\end{cases}
+\end{equation}
+where $\lor$, $\land$, and $\neg$ are respectively bitwise \emph{or}, \emph{and}, and \emph{negation}.
+\end{definition}
+
+This homomorphism is \emph{one-way} for two independent reasons.
+First, $\Fun{F}$ is not injective, i.e., multiple values in $\BitSet*$ (countably infinite many, since $\BitSet*$ is countably infinite) must map to at least one value in $\BitSet^m$.
+Second, the hash function $\hash$ is a cryptographic hash function that is resistant to preimage attacks, i.e., given a $y$ it is \emph{hard} to find a $x$ such that $\hash(x) = y$ but given an $x$ it is \emph{easy} to find a $y$ such that $\hash(x) = y$.
+
+Thus, given a set $\{x,y,z\} = \{x\} \SetUnion \{y\} \SetUnion \{z\}$, $\Fun{F}$ maps this to $\hash(x) \lor \hash(y) \lor \hash(z)$.
+
+These model \emph{positive approximate sets} with a false positive rate given by the following theorem.
+\begin{theorem}
+The false positive rate is a function of $m$ and $n$ and is given by
+\begin{equation}
+	\fprate(m,n) = \alpha^m(n)
+\end{equation}
+where
+\begin{equation}
+	\alpha(n) \coloneqq \left(1-2^{-(n+1)}\right)\,.
+\end{equation}
+\end{theorem}
+\begin{proof}
+Proof here. See paper sheets that are star-numbered.
+\end{proof}
+
+
+The \emph{bit-rate}, the bits per element, is given by the following corollary.
+\begin{corollary}
+\begin{equation}
+	\Fun{b}(n,\fprate) = \frac{\log_2 \fprate}{ n \alpha(n)}
+\end{equation}
+\end{corollary}
+\begin{proof}
+Proof here. See paper sheets that are star-numbered.
+\end{proof}
+
+The \emph{partial derivative} of $\Fun{b}$ with respect to $\fprate$ is given by
+\begin{equation}
+	\frac{\partial{\Fun{b}}}{\partial \fprate} = -\frac{\Fun{b}}{\Fun{B}(\fprate)},
+\end{equation}
+where $\Fun{B}(\fprate) \coloneqq -\fprate \log_2 \fprate$ is the \emph{binary entropy function}.
+This partial is less than zero everywhere but finds its minimum at $\frac{1}{e}$.
+
+The \emph{absolute efficiency} of this homomorphism, when implemented as a data structure for a false positive rate $\fprate$ is given by
+\begin{equation}
+	\AbsoluteEfficiency(n) = -n \log_2 \alpha(n)\,,
+\end{equation}
+which is exponential with respect to $n$.
+
+As $n \to \infty$, $\AbsoluteEfficiency(n)$ goes to $0$.
+It is only practical for small values of $n$, where $n$ is the number of elements of the set.
+
+The \emph{identity} relation has false positives given by the following.
+\begin{theorem}
+	False positives on the \emph{equality} predicate occurs with probability
+	\begin{equation}
+	\fprate(m) = ?\,,
+	\end{equation}
+	where $m$ is the bit length of the hash function in the Boolean cipher algebra.
+\end{theorem}
+\begin{proof}
+	Two sets are said to be identical if they map to the same bit string, and thus, as before, \emph{false positives} are possible,
+	\begin{equation}
+	\Prob{\Fun{G} \Set{X} = \Fun{G} \Set{Y} \Given \Set{X} \neq \Set{Y}}
+	\end{equation}
+	which occurs with probability $?$...
+\end{proof}
+
+
+TODO: figured out membership fpr, now figure out subset fpr, identity fpr also.
+
+
+\end{document}

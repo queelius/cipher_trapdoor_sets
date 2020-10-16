@@ -1,0 +1,132 @@
+%\documentclass{IEEEconf}
+%\documentclass[conference]{IEEEtran}
+%\documentclass[a4paper,twocolumn,10pt]{article}
+\documentclass[final,11pt,hidelinks]{article}
+\newcommand\hmmax{0}
+\newcommand\bmmax{0}
+\usepackage[T1]{fontenc} % optional
+\usepackage{lmodern}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage[activate={true,nocompatibility},final,tracking=true,kerning=true,spacing=true,factor=1100,stretch=10,shrink=10]{microtype}
+\microtypecontext{spacing=nonfrench}
+\usepackage{algorithm2e}
+\usepackage{appendix}
+\usepackage{caption}
+\usepackage{enumerate}
+\usepackage{bbm}
+\usepackage{mathtools}
+\usepackage{nomencl}
+\makenomenclature
+\usepackage{commath}
+\usepackage{subfiles}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{wasysym}
+\usepackage[hidelinks]{hyperref}
+\usepackage{tikz}
+\usepackage{tikzscale}
+\usepackage[section]{placeins}
+\usepackage[nopostdot,symbols,toc,acronym]{glossaries}
+\usepackage[square,numbers]{natbib}
+\usepackage{siunitx}
+\usepackage{cleveref}
+\usepackage{pgfplots}
+\usepackage[margin=1in]{geometry}
+
+\usepackage[fancy]{setnotation}
+\usepackage{approxsetnotation}
+\usepackage{relationnotation}
+\usepackage{probabilitynotation}
+\usepackage{obliviousnotation}
+\usepackage[section]{envnotation}
+\usepackage{algorithmnotation}
+
+
+
+
+\hypersetup
+{
+    pdftitle={Free semigroup ciphers}, % title
+    pdfauthor={Alexander Towell},               % author
+    pdfsubject={computer science},              % subject of the document
+    pdfkeywords={
+        approximate sets,
+        hash function,
+        random oracle,
+        cryptographic hash function},           % keywords
+    colorlinks=false,                           % false: boxed links; true: colored links
+    citecolor=green,                            % color of links to bibliography
+    filecolor=magenta,                          % color of file links
+    urlcolor=green                              % color of external links
+}
+
+\setglossarystyle{list}
+%\glsdisablehyper
+
+\bibliographystyle{plainnat}
+
+\usetikzlibrary{arrows,shapes,positioning}
+\usetikzlibrary{calc,decorations.markings}
+
+\graphicspath{{img/}} 
+
+\definecolor{ltgray}{rgb}{0.6,0.6,0.6}
+\newcommand\mycommfont[1]{\footnotesize\ttfamily\textcolor{ltgray}{#1}}
+\SetCommentSty{mycommfont}
+
+
+%\include{defs}
+%\include{nomen}
+\makeglossaries
+
+\loadglsentries{gls-oblivious.tex}
+\loadglsentries{gls-approxset.tex}
+\makenomenclature
+
+
+\newcommand{\cipher}[1]{\Fun{cipher}{#1}}
+\newcommand{\pnapprox}[2]{\Fun{approx_{\pm}^{#1}}[#2]}
+
+
+\title
+{
+    Free semi-group ciphers
+}
+\author
+{
+    Alexander Towell\\
+    \texttt{atowell@siue.edu}
+}
+\date{}
+\begin{document}
+\maketitle
+\begin{abstract}
+We define the semantics of abstract data type for the \emph{oblivious set}. We demonstrate a theoretical data structure, denoted the \emph{Singular Hash Set}, that provides an optimal implementation of the oblivious set with respect to \emph{entropy} and \emph{space complexity}. Finally, we show how to use the \emph{Bloom filter} and \emph{Perfect Hash Filter} to implement oblivious sets and compare them to each other and the theoretically optimal \emph{Singular Hash Set}.
+\end{abstract}
+
+%\printnomenclature
+
+\microtypesetup{protrusion=false}
+\tableofcontents
+%\listoffigures
+%\listofalgorithms
+%\lstlistoflistings
+\microtypesetup{protrusion=true}
+
+\subfile{sections/intro}
+\subfile{sections/ob_set}
+%\subfile{sections/prob_model}
+
+\subfile{sections/bool_alg}
+\subfile{sections/bool_rng}
+\subfile{sections/shs}
+
+%\subfile{sections/appendix}
+\printglossary
+\bibliography{references}
+\end{document}
+
+
