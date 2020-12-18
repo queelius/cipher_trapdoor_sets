@@ -9,11 +9,780 @@
 \SetKwData{Btm}{0}
 \SetKwData{Top}{1}
 
+
+\SetKwFunction{FoShs}{fo\_shs}
+\SetKwData{FoSHS}{FO\_SHS}
+\SetKwFunction{SoShs}{so\_shs}
+\SetKwData{SoSHS}{SO\_SHS}
+
+
 \providecommand{\mainx}{..}
 
 \begin{document}
-\section{The \emph{Singular Hash Set}}
+\section{The $k$-disjoint hash set ($k$-DHS)}}
 \label{sec:shs}
+The $k$-disjoint hash set ($k$-DHS), like the Bloom filter, is a model of \emph{Bernoulli sets} that obtains optimality with respect to \emph{space complexity} (or, relatedly, entropy).
+It is more generally an example of the $k$-disjoint hash map ($k$-DHM), as a model of Bernoulli maps.
+
+Essentially, the $k$-hash set bins the elements in some \emph{guard} set of size $m$ (typically the objective set) to $m/k$ bins with $k$ elements per bin.
+Then, the elements in each bin is hashed to a value that encodes \emph{true} or \emph{false} depending on its membership status.
+
+There are two \empoh{special} cases to consider.
+
+We denote the $m$-disjoint hash set the \emph{singular hash set} (SHS).
+It is optimal with respect to space complexity and entropy, i.e., prior to performing the hashes the value of the data structure is a random bit string with an uncertain length whose expectation obtains the information-theoretic lower-bound.
+
+In the $1$-disjoint hash set, we may directly map the value of that bin to the membership status of the single element in that bin, in which case we denote it the \emph{Perfect hash filter}.
+
+
+We pay particular attention to these two special cases.
+
+
+
+First, we describe the general algorithm.
+Then, we show how it may be parameterized to generate up to a $4$-th order model.
+
+
+
+
+
+
+\subsection{First-order model}
+\label{sec:foshs}
+In the first-order Bernoulli model, there is only one block in the partition of the universal set -- the universal set itself.
+
+The \emph{false positive rate} of an approximate cipher set is a \emph{rate-distortion}.
+We consider a variation of the singular hash set that has another kind of rate-distortion known as \emph{false negatives}.
+To simplify the subject, we consider the simplest approximate set model, the \emph{first-order} set model.
+A first-order approximate cipher set has a rate distortion $\epsilon$ over any element in the universal set, e.g., if we partition the universal set into positives and negatives then in the first-order approximate model the false negative and positive rates are also $\epsilon$.
+
+Note that \emph{composing} first-order approximate cipher sets in general results in \emph{higher-order} approximate set models.
+See \cref{?}.
+Here, we only consider a value constructor of cipher sets that generates first-order approximation errors.
+
+The number of elements that collide on the \emph{singular hash} on any particular trial is binomially distributed,
+\begin{equation}
+    \RV{T} \sim \bindist(m-1,\epsilon)\,.
+\end{equation}
+When we are only interested in $m$ `successes', the probability is given as before, $\epsilon^{m-1}$.
+
+There are a few different ways of treating the rate distortion $\fnrate$ and $\fprate$.
+
+We consider the false positive rate $\fprate$ first.
+Generally, we specify a value that is a compromise between space and accuracy.
+Since the cost of a false positive and the cost of a false negative may differ, different values for each may be preferable.
+
+One way is to treat $\alpha$ as a random variable that is induced by a maximum bit rate per element, e.g., on average the maximum number of bits per element is $b$.
+Thus, if there are $m$ elements, the constructor is limited to finding a bit string of length $b m$.
+
+Another way to proceed is to say that we are satisfied with proportion $(1-\alpha)$ elements or more being perfectly hashed.
+
+
+
+
+
+
+
+
+
+
+
+
+
+A data type that implements the first-order model is given next.
+
+
+\begin{equation}
+    \hash_1 x \coloneqq \trunc(\hash (x' \cat n'),1)\,.
+\end{equation}
+
+
+
+
+We would like to have properties of both homomorphisms $\Fun{F}$ and $\Fun{G}$, but with a much smaller space complexity and much greater entropy (as a proxy of confidentiality).
+
+In what follows, we provide a theoretical implementation of the \emph{cipher set} that obtains optimality in the following ways:
+\begin{enumerate}
+    \item The space complexity obtains the theoretical lower-bound of a first-order random approximate set with an expected error rate $\epsilon$.
+    \item The entropy obtains the upper bound for the given expected space complexity.
+\end{enumerate}
+
+TODO: we can also talk about approximate boolean functions, which is just an approximate set on the relation $\BitSet^k$.
+
+\begin{definition}
+    \label{alg:makeset}
+    The \emph{data type} for the \emph{cryptographic} first-order singular hash set is defined as $\FoSHS_{\Set{X}} \coloneqq \BitSet^* \times \NatSet$ with a value constructor $\FoShs_{\Set{X}} \colon \PS{\Set{X}} \times \NatSet \mapsto \FoSHS_{\Set{X}}$ defined as
+    \begin{equation}
+        \FoShs_{\Set{X}}(\Set{A},r) \coloneqq \Pair{n'}{f}
+    \end{equation}
+    where $r$ is the mean bits per positive element and
+    \begin{equation}
+        \begin{split}
+            t			& \coloneqq 2^{\Card{\Set{A}} r+1}-1\,,\\
+            \hash_1(x,n)& \coloneqq \trunc(\hash(x' \cat n'),1)\,,\\	
+            \Fun{g}(k) 	& \coloneqq \sum_{{x \in \Set{A}}}\left[\hash_1(x,k) \neq \SetIndicator{\Set{A}}(x)\right]\,,\\
+            f 			& \coloneqq \min_{k \in \{0,\ldots,t\}} \Fun{g}(k)\,,\\
+            n			& \coloneqq \min \SetBuilder{k \in \NatSet}{\Fun{g}(k) = f}\,.\\	
+        \end{split}
+    \end{equation}
+\end{definition}
+
+
+NOTE: we can use the above algorithm on a restriction of the universal set to $\Set{A}$ and then ...
+
+The pair $\left(\FoSHS_{\Set{X}}, \SetContains\right)$ models the first-order random approximate algebraic structure $\left(\PS{\Set{X}},\SetContains\right)$.
+That is, it models a first-order random approximate set where $\FoShs_{\Set{X}}(\Set{A},\epsilon) \sim \ASetFO{A}[\epsilon]$.
+
+\begin{theorem}
+    The data type $\FoSHS_{\Set{X}}$ with value constructor $\FoShs_{\Set{X}} \colon \PS{\Set{X}} \times \NatSet \mapsto \FoSHS_{\Set{X}}$ over the computational basis $\SetContains \colon \FoSHS_{\Set{X}} \times \Set{X} \mapsto \BitSet$ is a first-order random approximate set of $\Set{A}$ with an \emph{error rate} $\epsilon$.
+\end{theorem}
+\begin{proof}
+    In order for the value $\FoShs_{\Set{X}}(\Set{A},r)$ to be a first-order random approximate set with a distribution given by $\ASetFO{A}[\epsilon]$, by \cref{def:approx_set} it must satisfy the \emph{a priori}
+    \begin{equation}
+        \Prob{x \in \FoShs_{\Set{X}}(\Set{A},r) \neq x \in \Set{A} \Given x \in \Set{X}} = \epsilon\,.
+    \end{equation}
+    
+    Let $\ASetFO{A}$
+    \begin{equation}
+        \RV{E}_i = [\SetIndicator{}]
+    \end{equation}
+    
+    
+    
+    TODO:
+    
+    (1) With $\Prob{\RV{Q} \leq 2^{r+1}-1}$, $\epsilon = 0$ with expected $u$ bits, or $u/m$ bits per positive element.
+    (2) With $1-\Prob{\RV{Q} \leq 2^{r+1}-1}$, $\RV{A} = \max(\RV{T_1},\ldots,\RV{T_{2^{r+1}-1}})$ with an expectation of a little less than $r$ bits, since we choose the bit string that results in the maximum accuracy.
+    
+    \begin{equation}
+        \RV{Q_i} \sim \bindist\left(u, 0.5\right)
+    \end{equation}
+    with a probability density function and cumulative distribution function given respectively by
+    $\Fun{b}(\cdot \Given u, 0.5)$ and $\Fun{B}(\cdot \Given u, 0.5)$.
+    
+    Given a rate distortion of $r$ bits (maximum), the minimum error, which is equivalent to the maximum number of true outcomes, is a random variable given by
+    \begin{equation}
+        \RV{T} = \max\left\{\RV{Q_1}, \ldots, \RV{Q_k}\right\}
+    \end{equation}
+    where $k = 2^{r+1}-1$.
+    
+    $\RV{T}$ has a support of $\RV{T}$ is $\{0,\ldots,u\}$.
+    The cumulative distribution function of $\RV{T}$ is given by
+    \begin{equation}
+        \Fun{F}_{\RV{T}}(t \,\Given \,u, r) = \left(\Fun{B}\left(t \,\Given \, u, 0.5\right)\right)^{2^{r+1}-1}
+    \end{equation}
+    with a probability distribution function
+    \begin{equation}
+        \Fun{f}_{\RV{T}}(t \,\Given \,u, r) = \left(2^{r+1}-1\right) \Fun{b}
+        \left(t \,\Given \, u, 0.5\right) \left(\Fun{B}
+        \left(t \,\Given \, u, 0.5\right)\right)^{2^{r+1}-2}\,.
+    \end{equation}
+    
+    For sufficiently large $r$, $\epsilon \to 0$ and the expected bit length of the encoding goes to $u$ bits.
+    
+    
+\end{proof}
+
+The second-order $\pm$ model can be obtained with a slight tweak.
+
+\begin{definition}
+    \label{alg:makesecondorder}
+    The \emph{data type} for the \emph{cryptographic} second-order singular hash set is defined as $\SoSHS_{\Set{X}} \coloneqq \BitSet^* \times \NatSet$ with a value constructor $\SoShs_{\Set{X}} \colon \PS{\Set{X}} \times \NatSet \mapsto \SoSHS_{\Set{X}}$ defined as
+    \begin{equation}
+        \SoShs_{\Set{X}}(\Set{A},r) \coloneqq \Tuple{n',f_n,k}
+    \end{equation}
+    where $r$ is the rate distortion, the maximum mean number of bits per positive element, and
+    \begin{equation}
+        \begin{split}
+            t			& \coloneqq 2^{\Card{\Set{A}} r+1}-1\,,\\
+            \hash_k(x,n)& \coloneqq \trunc(\hash(x' \cat n'),k)\,,\\	
+            \Fun{g}(q) 	& \coloneqq \sum_{{x \in \Set{A}}}\left[\hash_k(x,q) \neq \SetIndicator{\Set{A}}(x)\right]\,,\\
+            f 			& \coloneqq \min_{q \in \{0,\ldots,t\}} \Fun{g}(q)\,,\\
+            n			& \coloneqq \min \SetBuilder{q \in \NatSet}{\Fun{g}(q) = f}\,.\\	
+        \end{split}
+    \end{equation}
+\end{definition}
+
+
+
+
+
+In particular, we consider a data type that supports both the membership and identity relations while obtaining the information-theoretic expected lower-bound for space with respect to the false positive rate.
+Since it obtains the information theoretic lower-bound, the bit strings generated naturally obtain \emph{maximum entropy}, i.e., any set $\Set{A} \in \PS{\Set{X}}$ a priori maps to random bit string in its representation.
+The only information it leaks is related to its expected bits per element, i.e., it is possible to estimate the cardinality of the set with high certainty.\footnote{Of course, the objective set may be poisoned with nonsense values before generating the set such that, for instance, every set is expected to have the same bit length.}
+
+
+The singular hash set obtains the theoretically optimal lower bound for a random approximate set (and by definition therefore obtains maximum entropy) while providing for set-membership.
+
+The singular hash set is a data type that implements the \emph{oblivious} random 
+positive approximate set abstract data type.
+The implementation consists of a  product data structure (tuple) $\BitSet^k \times \BitSet^{*}$, an algorithm 
+that \emph{generates} the data structure, and an algorithm that implements the \emph{member-of} function by appropriately \emph{querying} the data structure.
+
+
+%The implementation of the algorithm that generates the data structure for the 
+%singular hash set that implements an \emph{approximate} \emph{oblivious set} is 
+%given by the following theorem.
+%\begin{theorem}[Singular hash set]
+%\Cref{alg:makeset} implements the regular function
+%\begin{equation}
+%	\MakeSingularHashSet \colon \PowerSet(\Set{U}) \times [\fprate] \mapsto 
+%	\BitSet^k \times \BitSet^*\,,
+%\end{equation}
+%where $[\fprate] = \left\{2^{-k} \colon k \in \NatSet\right\}$, and the 
+%member-of function
+%\begin{equation}
+%    \SetContains \colon \BitSet^k \times \BitSet^* \mapsto \BitSet
+%\end{equation}
+%has an implementation given by \cref{dummyref}, a generator of \emph{positive approximate oblivious sets} over the universe $\Set{U}$, i.e.,
+%\end{theorem}
+%
+%
+%\begin{algorithm}
+%%    \caption{Implementation of \protect\MakeSingularHashSet over a universal set $\Set{U}$}
+%    \label{alg:makeset}
+%    \DontPrintSemicolon
+%    \SetKwProg{func}{function}{}{}
+%    \KwIn
+%    {
+%        $\Set{S}$ is a subset of a universal set $\Set{U}$.
+%        $\fprate$ is the false positive rate.
+%    }
+%    \KwOut
+%    {
+%        An \emph{oblivious} positive approximate set of $\Set{S}$.
+%    }
+%    \func{\MakeSingularHashSet{$\Set{S}$, $\fprate$}}
+%    {
+%        $\Set{S}_{\BitSet} \gets \left\{\Encode_{\Set{U} \mapsto \BitSet}(x) 
+%        \colon x \in \Set{S}\right\}$\;
+%        \For{$n \gets 0$ \KwTo $\infty$}
+%        {
+%            \For{$j \gets 1$ \KwTo $2^n$}
+%            {
+%                $\found \gets 1$\;
+%                \tcp{To maximize \emph{entropy} we try bit strings of length 
+%                $n$ in random order.}
+%                $b_n \gets $ a bit string of length $n$ randomly drawn from 
+%                $\BitSet[n]$ without replacement\;
+%                $h_k \gets \Null$\;
+%                \For{$x \in \Set{S}_{\BitSet}$}
+%                {
+%                    \uIf{$h_k = \Null$}
+%                    {
+%                        $h_k \gets \hash\!\left(x \cat b_n\right) \mod 
+%                        (k+1)$\;
+%                    }
+%                    \uElseIf{$h \neq \hash\!\left(x \cat b_n\right) \mod 
+%                    (k+1)$} 
+%                    {
+%                        $\found \gets 0$\;
+%                    }
+%                }
+%                \If{\found}
+%                {
+%                    \tcp{This tuple is the data structure of the singular hash set.}
+%                    \Return $(h_k, b_n)$\;
+%                }
+%            }
+%        }
+%    }
+%
+%\end{algorithm}
+
+
+The \emph{membership} relation is defined by the predicate $\SetContains \colon \OT{\Set{X}} \times \FoSHS_{\Set{X}} \mapsto \BitSet$, is defined as
+\begin{equation}
+    \Tuple{h,b} \SetContains \OT{x} \coloneqq q' \mod N
+\end{equation}
+where
+\begin{equation}
+    \begin{split}
+        k &\coloneqq \lceil \log_2 N \rceil\,,\\
+        r &\coloneqq \hash(x' \cat b)\,,\\
+        q &\coloneqq \trunc(r,k)\,.
+    \end{split}
+\end{equation}
+
+
+
+\begin{definition}
+    \begin{equation}
+        \SetContains \colon \Set{X} \times \FoSHS_{\Set{X}} \mapsto \BitSet
+    \end{equation}
+    
+\end{definition}
+
+%\begin{algorithm}
+%    \caption{Implementation of $\protect\SetContains$}
+%    \label{alg:contains}
+%    \DontPrintSemicolon
+%    \KwIn
+%    {
+%        $\OT{\PASet{S}}$ is the singular hash set (product type) to query and $x$ is 
+%        the element to test for membership.
+%    }
+%    \KwOut
+%    {
+%        \True if $x \in \OT{\PASet{S}}$ otherwise \False. If we rephrase this with 
+%        respect to $\Set{S} \subseteq \OT{\PASet{S}}$, then \True if $x \in \Set{S}$ 
+%        and otherwise \True with probability $\fprate$ and \False with 
+%        probability $1 - \fprate$, where $\fprate$ is the false positive rate 
+%        of $\OT{\PASet{S}}$.
+%    }
+%    \SetKwProg{func}{function}{}{}    
+%    \func{$x \SetContains \OT{\PASet{S}}$}
+%    {
+%        \tcp{The singular hash set $\OT{\PASet{S}}$ is coded by the tuple $(b_n, h_k)$, 
+%        where $b_n$ is a bit string of length $n$ and $h_k$ is the singular 
+%        hash.}
+%        $k = \BL(h_k)$\;
+%        \uIf{$\hash(x \cat b_n) \mod k = h_k$}
+%        {
+%            \tcp{False positives occur with probability $\fprate = 2^{-k}$.}
+%            \Return \True\;
+%        }
+%        \uElse
+%        {
+%            \Return \False\;
+%        }
+%    }
+%\end{algorithm}
+
+\begin{figure}
+    \centering
+    \input{img/fig_shs.tex}
+    \caption{\emph{Singular Hash Set} over a \emph{countably infinite} universe}
+    \label{fig:my_label}
+\end{figure}
+
+
+\subsubsection{Time and space complexity}
+The probability that every element of a $k$-block in the partition of $\Set{A}$ collides for a particular bit string in \cref{alg:ph} is given by the following theorem.
+\begin{theorem}
+    The number of time steps the algorithm for $\shs(m,\fprate,k)$ is \emph{geometrically} distributed
+    \begin{equation}
+        \RV{Q} \sim \geodist(\fprate^{k})
+    \end{equation}
+    with an \emph{expected} number of steps given by
+    \begin{equation}
+        \label{eq:p_m_N}
+        \fprate^{-m}\,.
+    \end{equation}
+\end{theorem}
+\begin{proof}
+    Suppose we have a set of bit strings $\Set{A} = \{b_1,\ldots,b_m\}$ and $b_1$ hashes to $y = \hash_k(b_1,n)$ where $\hash_k \colon \BitSet^{*} \mapsto \BitSet^k$ is a random hash function that uniformly distributes over its domain of $2^k$ possibilities.
+    Since $y$ is a particular element in $\BitSet^k$, the probability that $b_j$ for $j=2,\ldots,m$ hashes to $y$ is given by
+    \begin{equation}
+        \frac{1}{2^k} = \fprate\,.
+    \end{equation}
+    Since $\hash_{\Set{S}}$ is a random hash function, the hashes of $b_1,\ldots,b_m$ are independent.
+    Thus, the joint probability that $b_2, \ldots, b_m$ hash to $y$ is given by the product of their marginal probabilities
+    \begin{equation}
+        \fprate^{m-1}\,.
+    \end{equation}
+\end{proof}
+
+\begin{theorem}
+    The expected bit length of $\SHS(m,\fprate,k)$ the Singular Hash Set obtains the information-theoretic lower-bound given by
+    \begin{equation}
+        -\log_2 \fprate \; \si{bits \per element}\,,
+    \end{equation}
+    where $\fprate$ is the false positive rate.
+\end{theorem}
+\begin{proof}
+    Suppose $\Card{\Set{A}}=m$.
+    By \cref{alg:makeset}, $\shs_{\Fun{F} \Set{X}}(\Set{A},\fprate)$ is a value constructor that returns a pair of elements, $\Tuple{n',q}$ which has a bit length $\BL{n'} + \BL{q}$.
+    The bit length of $\BL{q}$ is just $-\log_2 \fprate$.
+    The bit length of $n'$ depends on the minimum value of $n$ found.
+    
+    Computationally, we search in the order of increasing $n$, from $0$ to $\infty$.
+    The first case when a perfect collision occurs is a geometric distribution $\RV{Q} \sim \geodist \!\left(p = \fprate^{m-1}\right)$.
+    By \cref{def:mapping}, the $n$-th trial uniquely maps to a bit string of length $\lfloor \log_2 n \rfloor$.
+    Thus, the bit string has a random length given approximately by $\RV{N} = \log_2 \RV{Q}$ bits.
+    We approximate the logarithm with a second-order Taylor series around the \emph{expected} value of $\RV{Q}$ as given by
+    \begin{equation}
+        \RV{N} \approx
+        \log_2 \Expect{\RV{Q}} -
+        \frac{\left(\RV{Q} - \Expect{\RV{Q}}\right)^2}{2 \Expect{\RV{Q}}^2}        
+        \log_2 e\; \si{bits}\,.
+    \end{equation}
+    We are interested in the \emph{expected} value of $\RV{N}$,
+    \begin{equation}
+        \label{eq:proofspaceexplb}
+        \Expect{\RV{N}} \approx
+        \log_2 \Expect{\RV{Q}} -
+        \frac{\Var{\RV{Q}}}{2 \Expect{\RV{Q}}^2} \log_2 e \; \si{bits}\,.
+    \end{equation}
+    The expectation and variance of $\RV{Q}$ is known to be $1/p$ and $(1-p)/p^2$ respectively, and thus we may rewrite \cref{eq:proofspaceexplb} as
+    \begin{equation}
+        \label{eq:proofspaceexplb2}
+        \Expect{\RV{N}} \approx = -\log_2 p - \frac{1-p}{2} \log_2 e \; \si{bits}\,.
+    \end{equation} 
+    Substituting $\fprate^{m-1}$ for $p$ in \cref{eq:proofspaceexplb2} results in
+    \begin{align}
+        \Expect{\RV{N}}
+        &\approx -(m-1) \log_2 \fprate - \frac{1-\fprate^{m-1}}{2} \log_2 e \; \si{bits}\,.
+    \end{align}
+    In total, the bit length of $\Tuple{n',q}$ is thus
+    \begin{equation}
+        \BL = -m \log_2 \fprate +  \frac{1-\fprate^{m-1}}{2} \log_2 e \; \si{bits}
+    \end{equation}
+    which asymptotically converges to $-\log_2 \fprate$ bits per element as $m \to \infty$.
+\end{proof}
+
+By \cref{eq:exp_trials}, \cref{alg:ph} has an expected time complexity that grows exponentially as $m$ grows The algorithm is intended to illustrate theoretical properties, not necessarily be used in practice.
+
+\subsubsection{Probability distributions}
+The bit representation of a singular hash set of $\Set{A}$ is uncorrelated with the specific elements of but is highly correlated with the its \emph{cardinality} $\Card{\Set{A}}$.
+
+
+
+The probability that $\RV{B} = b$ is given by
+\begin{equation}
+    \PDF{b \Given n}[\RV{B} \Given \RV{N}] = 2^{-n} \SetIndicator{\BitSet^n}(b)\,.
+\end{equation}
+\begin{proof}
+    Sketch proof.
+\end{proof}
+
+
+
+
+Given a false positive rate $\fprate$, the probability that $\RV{H} = h$ is given by
+\begin{equation}
+    \PDF{h \Given \fprate}[\RV{H}] = \fprate \, \SetIndicator{\BitSet^k}(h)\,,
+\end{equation}
+where $k = -\log_2 \fprate$.
+
+
+
+\begin{theorem}
+    The random bit length $\RV{N}$ has a probability mass function given by
+    \begin{equation}
+        \label{eq:N_pmf}
+        \PDF{n \Given m, \fprate}[\RV{N}] = \left(\frac{1}{q}-q\right) q^{2^n} \SetIndicator{\NatSet}(n)\,,	
+    \end{equation}
+    where $q = 1 - \fprate^{m-1}$, $m$ is the cardinality of the objective set, and $\fprate$ is the false positive rate.
+\end{theorem}
+\begin{proof}
+    The probability that a bit string of length $n$ occurs is given by the probability that $\RV{Q}$ realizes some value in the range $\{2^n, \ldots, 2^{n+1}-1\}$, which is given by
+    \begin{align}
+        \Prob{2^n-1 < \RV{Q} \leq 2^{n+1}-1}
+        &= \Fun{F}[\RV{Q}]\!\left(2^{n+1}-1\right)-\Fun{F}[\RV{Q}]\!\left(2^n\right)\\
+        &= \left(1-q^{2^{n+1}-1}\right) - \left(1-q^{2^n-1}\right)\\		
+        &= q^{2^n-1} - q^{2^{n+1}-1}\,,
+    \end{align}
+    which is equivalent to the result.
+\end{proof}
+
+Given a false positive rate $\FPR = \fprate$ and an objective set of cardinality $m$, the joint distribution of $\RV{B}$, $\RV{H}$, and $\RV{N}$ is given by
+\begin{equation}
+    \PDF{b,h,n \Given m,\fprate}[\RV{B},\RV{H},\RV{N}] = 2^{-n} \fprate \PDF{n \Given m,\fprate}[\RV{N}]\, \SetIndicator{\BitSet^n \times \BitSet^k \times \NatSet}(b,h,n)
+\end{equation}
+where $k = -\log_2 \fprate$.
+
+In the singular hash set, the false positive rate and bit length $\RV{N}$ are \emph{observable}.
+Therefore, a primary statistic of interest is the joint distribution of $\RV{B}$ and $\RV{H}$ given $\RV{N} = n$ and $\FPR = \fprate$, which is given by
+\begin{equation}
+    \PDF{b,h \Given n,\fprate}[\RV{B},\RV{H} \Given \RV{N}] = 2^{-n} \fprate \, \SetIndicator{\BitSet^n \times \BitSet^k}(b,h)
+\end{equation}
+where $k = -\log_2 \fprate$.
+
+
+
+%
+
+
+The marginal distribution of $\RV{B}$ is given by marginalizing over the joint distribution with respect to $\RV{B}$, which yields the result
+\begin{equation}
+    \PDF{b \Given \fprate, m}[\RV{B}] = 2^{-\BL(b)} \PDF{\BL(b) \Given m, \fprate}[\RV{N}]\,.
+\end{equation}
+
+
+
+A few key features of $\RV{B}$ is that it realizes the empty string with probability $\fprate^{m-1}$ and as $n$ goes to infinity, the probability that $\BL(\RV{B})=n$ goes to $0$.
+
+
+
+NOTE: the singular hash set does not expose correlations by bit-wise operations, which may be a good thing, unlike in the bitwise models discussed previously.
+
+
+%TODO: note that the SHS has a product type that is NOT UNIQUE. 
+%Representational equality vs behavior equality, etc. Representationally, 
+%different tuples may represent the exact same set, so representional 
+%inequality 
+%is not the same as behavioral equality. For any REGULAR FUNCTION, it should 
+%not 
+%matter which representation is given to the function as input, it should 
+%produce the same output for any object that represents the same oblivious set.
+
+
+The entropy of $\RV{N}$ is given by the following theorem.
+\begin{theorem}
+    ?
+\end{theorem}
+\begin{proof}
+    \begin{equation}
+        \Entropy{\RV{N}} = -\Expect{\log_2 \PDF{\RV{N}}[\RV{N}]}\,.
+    \end{equation}
+    
+    \begin{align}
+        \Entropy{\RV{N}}
+        &= -\sum_{n=0}^{\infty} \log_2 \PDF{n}[\RV{N}] \PDF{n}[\RV{N}]\\
+        &= -\sum_{n=0}^{\infty} \log_2\! \left(q^{2^n-1}\left(1-q^{2^n}\right)\right) \PDF{n}[\RV{N}]\,.
+    \end{align}
+    \begin{equation}
+        \begin{split}
+            \Entropy{\RV{N}}
+            =&-\log_2 q \sum_{n=0}^{\infty}
+            (2^n-1) \PDF{n}[\RV{N}] -\\
+            &\sum_{n=0}^{\infty} \log_2\left(1-q^{2^n}\right) \PDF{n}[\RV{N}]\,.
+        \end{split}
+    \end{equation}
+    
+    \begin{equation}
+        \begin{split}
+            \Entropy{\RV{N}}
+            =&-\log_2 q \left[\sum_{n=0}^{\infty}
+            (2^n \PDF{n}[\RV{N}]\right] -\\
+            &\sum_{n=0}^{\infty} \log_2\left(1-q^{2^n}\right) \PDF{n}[\RV{N}]\,.
+        \end{split}
+    \end{equation}
+\end{proof}
+
+
+\begin{theorem}
+    The random bit string that codes the singular hash set is a \emph{maximum entropy} coder for the \emph{approximate set} abstract data type.
+\end{theorem}
+\begin{proof}
+    The result immediately follows from the fact that the bit string is \emph{incompressible} and thus obtains maximum entropy.
+    The bit string $h_k \in \BitSet^k$ is, a priori, a random bit string uniformly distributed over $\BitSet^k$ by the property of the cryptographic hash function.
+    The bit string $b_n \in \BitSet*$ realizes a length $n$ with probability $\Fun{f}[\RV{N}](n)$.\footnote{As such, we can further compress $b_n$ using a geometric coder that assigns shorter bit strings to more probable lengths, but we require an \emph{in-place} bit string and so stick with the original code.}
+    Given $\RV{N}=n$, the bit string $b_n \in \BitSet^n$ is, a priori, a random bit string uniformly distributed over $\BitSet^n$.
+\end{proof}
+
+There are two predictable regularities in the bit string representation of a singular hash set.
+\begin{enumerate}
+    \item The \emph{randon bit length} $\RV{N}$ has relatively low entropy and is expected to obtain the information-theoretic lower-bound.
+    \item The false positive rate has no uncertainty, i.e., zero entropy.
+\end{enumerate}
+
+By construction, we are able to estimate that an element is a member or non-member of $\Set{A}$ by determining if it is a member or non-member of $\OT{\PASet{A}}$, e.g., positive predictive value and other binary classification measures.
+
+By construction, the singular hash set obtain the information-theoretic lower-bound, which may be used to estimte the cardinality of the objective sets being modeled by a singular hash set.
+For instance, given a set $\Set{A}$, the random bit length $\RV{N}$ of bit string $b_n$ has a probability mass concentrated around the theoretical lower-bound.
+Therefore, a \emph{method-of-moments} estimator of the cardinality of the $\Set{A}$ is given by
+\begin{equation}
+    \hat{\Card{\Set{A}}} = -\frac{\BL\!\left(\PASet{A}\right)}{\log_2 \fprate}\,,
+\end{equation}
+were $\BL$ is the bit length function and $\fprate$ is the \emph{false positive rate}.
+
+
+
+
+
+
+
+
+
+
+
+\subsubsection{Relaxing optimality}
+By \cref{dummy}, the time complexity is \emph{exponential} with respect to the cardinality $m$ of the objective set being modeled with a cipher set.
+We can trade space complexity for time complexity to design more practical algorithms.
+
+Let $\Set{A}$ be the objective set.
+A general approach is to use a \emph{multi-level} hashing scheme such that each level generates smaller independent sub-problems.
+
+We consider a two-level scheme.
+At the first level, we find a hash function $\Fun{h}_k \colon \Set{X} \mapsto \{0,1,\ldots,k-1\}$ that maps $m/k$ elements in $\Set{A}$ to each element in the codomain.
+
+\begin{definition}
+    The cryptographic $\alpha$-perfect hash function is a variation of the perfect hash function.
+    For each element in the codomain, proportion $\alpha$ of the domain maps to it.
+\end{definition}
+
+There are two degenerate cases to consider.
+Suppose $\Set{A}$ is the objective set and $\Card{\Set{A}}=m$.
+If $\alpha=1$, then it reduces to a \emph{singular} hash function where every element of $\Set{A}$ maps to the same value.
+If $\alpha=\frac{1}{m}$, then it reduces to a \emph{minimal perfect hash function} of $\Set{A}$ where the hash function restricted to $\Set{A}$ is a bijection between $\Set{A}$ and $\{0,\ldots,m-1\}$.
+
+
+
+
+The cryptographic $m/k$-perfect hash function has a space and time complexity given by the following theorem.
+\begin{theorem}
+    A cryptographic $m/k$-perfect hash function has an expected space complexity given by
+    \begin{equation}
+        -\alpha \log_2 \alpha
+    \end{equation}
+    and an expected time complexity given by
+    \begin{equation}
+        \mathsmaller{\sqrt{\frac{k}{\alpha}}} \alpha^{\frac{k}{2}}
+    \end{equation}
+    where $\alpha \coloneqq \frac{m}{k}$.
+\end{theorem}
+\begin{proof}
+    Consider the family of hash functions of the type $\Set{X} \mapsto \{1,2,\ldots,k\}$.
+    When we restrict this family to some objective set $\Set{A}$ of cardinality $m$, we have hash functions of type $\Set{A} \mapsto \{1,2,\ldots,k\}$.
+    There are exactly $k^m$ hash functions of this type.
+    
+    We are interested only in those hash functions of this type that evenly $k$-partition the domain into the codomain, i.e., the preimage of each element in the codomain consists of $\alpha \coloneqq m/k$ elements in the domain.
+    
+    To count the number of possible functions, we choose $\alpha$ of the $m$ elements in the domain for element $1$ in the codomain.
+    There are a total of $m \choose \alpha$ ways of making this selection.
+    We remove these $\alpha$ elements from the domain.
+    We repeat the procedure again.
+    We choose $\alpha$ of the remaining $m-\alpha$ elements in the domain for element $2$ in the codomain.
+    There are a total of ${m-\alpha} \choose \alpha$ ways of making this selection.
+    If there are $a$ ways to make a first choice and $b$ ways to make a second choice, by the product rule there are $a b$ ways to make those two choices.
+    Thus, continuing this pattern, there are
+    \begin{equation}
+        \prod_{j=1}^{k} {{m - j \alpha} \choose \alpha}
+    \end{equation}
+    ways to make the selections for the $k$ elements in the codomain, which simplies to
+    \begin{equation}
+        \frac{m!}{(\alpha!)^k}\,.
+    \end{equation}
+    
+    To generate perfect hash functions, we append some bit string to each input.
+    By the property of cryptographic hash functions, each bit string serves as an index into the cryptographic hash function family $\Set{A} \mapsto {0,1,\ldots,k-1}$.
+    Thus, since there are $k^m$ functions in this family in total, and only $\frac{m!}{(\alpha!)^k}$ $m/k$-perfect hash functions of this type, each time we index into the family, with probability
+    \begin{equation}
+        p \sim e \mathsmaller{\sqrt{\frac{k}{\alpha}}} \alpha^{\frac{k}{2}}
+        %	p = \frac{m!}{(\alpha!)^k k^m}
+    \end{equation}
+    will the hash function be a $\alpha$-perfect hash function.
+    
+    The probability of successfully finding an $m/k$-perfect hash function for each trial bit string is thus \emph{geometrically} distributed with a probability of success $p$.
+    
+    The time complexity is just the \emph{expected} number of trials, which is $1/p$ for the geometric distribution, and the length of the successful bit string is just $\log_2 1/p$.
+\end{proof}
+
+
+\begin{figure}
+    \centering
+    \caption{The expected bits per element of the\\cryptographic $k$-perfect hash function.}
+    \begin{tikzpicture}
+        \begin{axis}[
+            axis lines = left,
+            xlabel = $\alpha \coloneqq \frac{m}{k}$,
+            ylabel = {$\mathcal{O}(-\alpha \log_2 \alpha)$},
+            ]
+            \addplot [
+            domain=-0:1, 
+            samples=100, 
+            color=blue,
+            ]
+            {-log2(e)*x*log2(x) + x*ln(2*pi)};
+        \end{axis}
+    \end{tikzpicture}
+\end{figure}
+
+
+We employ the $m/k$-perfect hash function to construct a more practical variation of the singular hash set.
+
+We $k$-partition the $m$ elements in a specified set using the $m/k$-perfect hash function, giving us $m/k$ elements per bin, and then we apply the singular hash set to each of these independently.
+
+This is a negative binomial distribution.
+
+
+Suppose we have two cryptographic hash functions, $\hash_1 \colon \BitSet^* \mapsto \BitSet^w$ and $\hash_2 \colon \BitSet^w \mapsto \BitSet^k$ where, in general, $w < k$ but this is not necessarily the case.
+If $w >> \Card{\Set{A}}$, then the size of the cipher set is just $-w \log_2 \fprate$ where $\fprate = 2^{-k}$ since each element of $\Set{A}$, with high probability, maps to a unique hash by $\hash_1$.
+
+
+
+
+The first-level hash function $\hash_k \coloneqq \Set{X} \mapsto \{0,1,\ldots,k-1\}$ is defined as
+\begin{equation}
+    \hash_{k}(x) \coloneqq \Tuple{h,n'}
+\end{equation}
+where
+\begin{equation}
+    \begin{split}
+        \phi(w,n) 	& \coloneqq \hash(n' \cat x') \mod k\,,\\
+        \Set{Y}[l] 	& \coloneqq \SetBuilder{\phi(x,l) \in \BitSet^k}{x \in \Set{A}}\,,\\
+        n 			& \coloneqq \min\left\{\SetBuilder{ j \in \NatSet }{ \Set{Y}[j] \in \PS{\BitSet^k} \land \Card{\Set{Y}[j]} = 1}\right\}\,.
+    \end{split}
+\end{equation}
+
+
+
+
+
+The first application of the cryptographic hash function maps each element to a particular index.
+By the property of the cryptographic hash function, the elements are expected to be equally partitioned into the $k$ indices.
+Next, at each index, we associate an independent bit string that serves the same purpose as the bit string $b_n$ in the singular hash set.
+We then independently apply the singular hash set algorithm to each partition.
+Let the number of trials necessary for singular hash set of the $j$-th partition be denoted by $\RV{T}_j$.
+The total expected number of trials is just the sum of the geometrically distributed random variables $\RV{T} = \RV{T}_1 + \RV{T}_2 + \cdots + \RV{T}_k$, which is a \emph{negative binomial distribution},
+\begin{equation}
+    \RV{T} \sim \nbdist\left(k, \fprate^{\frac{m}{k}-1}\right)\,.
+\end{equation}
+%If a partition ends up being especially problematic, we may either increase $k$ or recursively subdivide the partition until a base case $k=1$ is trivial to solve.
+
+The extra degree of freedom we have with the number of partitions $k$ means we can quantitatively trade space complexity for time complexity.
+\begin{theorem}
+    The value of $k$ that is expected to yield a solution at $t$ trials is given by
+    \begin{equation}
+        k = \alpha \Expect{\RV{N}}\,,
+    \end{equation}
+    where $\frac{1}{\alpha} = \log_2 \left(\frac{\fprate t}{k + t}\right)$.
+\end{theorem}
+\begin{proof}
+    We take the approach of solving for some $t$ number of trials and finding a lower-bound $k$ that satisfies the equation,
+    \begin{equation}
+        \Expect{\RV{T}} = t\,.
+    \end{equation}
+    Substituting the expectation of the negative binomial into the above yields the equation
+    \begin{equation}
+        \frac{k \fprate^{m/k-1}}{1-\fprate^{m/k-1}} = t\,.
+    \end{equation}
+    Solving for $k$ yields the result.
+\end{proof}
+
+We know that, approximately, the bit length is given by
+\begin{equation}
+    \RV{N} = \log_2 \RV{T}\,,
+\end{equation}
+which may be solved as described in \cref{dummy}.
+
+We may also quantify the probability that, after $t$ trials, some jointly chosen value of $k$, $t$, and $\fprate$ fails to realize a solution.
+In fact, we can quantify the probability that $r$ of the $m$ elements fails, which yields a \emph{rate-distortion} $\frac{r}{m}$.
+
+If after $t$ trials no solution is found, we may either continue with the search or stop short, resulting in not just an approximate set with \emph{false positives} but also \emph{false negatives}.
+We refer to this outcome as a \emph{rate-distorted set}, where the rate distortion is a function of time.
+However, note that we could also make the rate-distortion a function of \emph{space}, i.e., limit the maximum size of the bit string code and choose the code that yields the smallest false negative rate.
+
+
+If we are interested in rate-distorted sets with false negative rates greater than $0$, then an alternative approach is to consider the probability of failure for a particular $k$, $\fprate$, and $m$.
+By the survival function of the negative binomial, the probability that more than $t$ trials (or $\log_2 t$ bits) is required for a particular parameterization $k$ and $p = \fprate^{\frac{m}{k}-1}$ is given by
+\begin{equation}
+    \Fun{I}[p](t+1, k)\,,
+\end{equation}
+where $\Fun{I}[p]$ is the \emph{regularized incomplete beta function}.
+
+
+
+
+
+\begin{theorem}
+    A value of type $\FoSHS_{\Set{X}}^{k}$ constructed with $\shs_{\Set{X}}(\Set{A},\fprate \; \Given \; k = m)$ \emph{models} a cryptographic perfect hash function $\hash_{\Set{A}} \colon \Set{X} \mapsto \{0,1,\ldots,-\log_2 \fprate\}$ where $\Set{A} \subseteq \Set{X}$ and $r = \frac{\Card{A}}{-\log_2 \fprate}$.
+\end{theorem}
+
+
+
+\subsection{Second-order positive model}
+We consider a variation of the singular hash set where one of the blocks in the partition that (usually) has a lower cost when errors occur.
+Elements in this block are randomly mapped to true and false based on the properties of the \emph{prefix-free} codes, i.e., if proportion $p$ of random bit strings map to prefix-free codes for \emph{true} and $1-p$ for \emph{false}, then an element in the block randomly maps to true with probability $p$ and false with probability $1-p$.
+The obvious choice for the partition is some subset of the negative set such that a \emph{false positive} occurs with probability $\fprate = p$ and a true negative occurs with probability $\tnrate = 1-p$.
+This is especially important if, say, the universal set is \emph{countably infinite}.
+
+Suppose $h$ is the hash of a negative element in the second-order positive singular hash set.
+Then, if $h' \leq k$, we say $h$ maps to true and otherwise false.
+That means that $p = k / 2^l$ where $l$ is the size of the hash.
+
 We would like to have properties of both homomorphisms $\Fun{F}$ and $\Fun{G}$, but with a much smaller space complexity and much greater entropy (as a proxy of confidentiality).
 
 In what follows, we provide a theoretical implementation of the \emph{cipher set} that obtains optimality in the following ways:
@@ -229,7 +998,7 @@ q &\coloneqq \trunc(r,k)\,.
 \end{figure}
 
 
-\subsection{Time and space complexity}
+\subsubsection{Time and space complexity}
 The probability that every element of $\Set{S}$ collides for a particular bit string in \cref{alg:ph} is given by the following theorem.
 \begin{theorem}
 The number of time steps the algorithm for $\shs(m,\fprate)$ is \emph{geometrically} distributed
@@ -305,7 +1074,7 @@ which asymptotically converges to $-\log_2 \fprate$ bits per element as $m \to \
 
 By \cref{eq:exp_trials}, \cref{alg:ph} has an expected time complexity that grows exponentially as $m$ grows The algorithm is intended to illustrate theoretical properties, not necessarily be used in practice.
 
-\subsection{Probability distributions}
+\subsubsection{Probability distributions}
 The bit representation of a singular hash set of $\Set{A}$ is uncorrelated with the specific elements of but is highly correlated with the its \emph{cardinality} $\Card{\Set{A}}$.
 
 
@@ -453,7 +1222,7 @@ were $\BL$ is the bit length function and $\fprate$ is the \emph{false positive 
 
 
 
-\subsection{Relaxing optimality}
+\subsubsection{Relaxing optimality}
 By \cref{dummy}, the time complexity is \emph{exponential} with respect to the cardinality $m$ of the objective set being modeled with a cipher set.
 We can trade space complexity for time complexity to design more practical algorithms.
 
@@ -723,6 +1492,9 @@ One way is to treat $\alpha$ as a random variable that is induced by a maximum b
 Thus, if there are $m$ elements, the constructor is limited to finding a bit string of length $b m$.
 
 Another way to proceed is to say that we are satisfied with proportion $(1-\alpha)$ elements or more being perfectly hashed.
+
+
+
 
 
 \end{document}  

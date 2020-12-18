@@ -96,7 +96,8 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-We define the semantics of abstract data type for the \emph{oblivious set}. We demonstrate a theoretical data structure, denoted the \emph{Singular Hash Set}, that provides an optimal implementation of the oblivious set with respect to \emph{entropy} and \emph{space complexity}. Finally, we show how to use the \emph{Bloom filter} and \emph{Perfect Hash Filter} to implement oblivious sets and compare them to each other and the theoretically optimal \emph{Singular Hash Set}.
+We describe a data type that models the concept of the first, second, and third-order Bernoulli set.
+It obtains optimality with respect to space complexity.
 \end{abstract}
 
 %\printnomenclature
@@ -109,18 +110,9 @@ We define the semantics of abstract data type for the \emph{oblivious set}. We d
 \microtypesetup{protrusion=true}
 
 \subfile{sections/intro}
-\subfile{sections/ob_set}
-%\subfile{sections/prob_model}
-
-\subfile{sections/bool_alg}
-\subfile{sections/bool_rng}
-\subfile{sections/bf_second_order}
 \subfile{sections/shs}
-\subfile{sections/shs-first-order}
 
-
-
-%\subfile{sections/appendix}
+\subfile{sections/appendix}
 \printglossary
 \bibliography{references}
 \end{document}
