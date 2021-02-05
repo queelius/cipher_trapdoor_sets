@@ -19,7 +19,7 @@
 \providecommand{\mainx}{..}
 
 \begin{document}
-\section{The $k$-disjoint hash set ($k$-DHS)}}
+\section{The $k$-disjoint hash set ($k$-DHS)}
 \label{sec:shs}
 The $k$-disjoint hash set ($k$-DHS), like the Bloom filter, is a model of \emph{Bernoulli sets} that obtains optimality with respect to \emph{space complexity} (or, relatedly, entropy).
 It is more generally an example of the $k$-disjoint hash map ($k$-DHM), as a model of Bernoulli maps.
@@ -27,7 +27,7 @@ It is more generally an example of the $k$-disjoint hash map ($k$-DHM), as a mod
 Essentially, the $k$-hash set bins the elements in some \emph{guard} set of size $m$ (typically the objective set) to $m/k$ bins with $k$ elements per bin.
 Then, the elements in each bin is hashed to a value that encodes \emph{true} or \emph{false} depending on its membership status.
 
-There are two \empoh{special} cases to consider.
+There are two \emph{special} cases to consider.
 
 We denote the $m$-disjoint hash set the \emph{singular hash set} (SHS).
 It is optimal with respect to space complexity and entropy, i.e., prior to performing the hashes the value of the data structure is a random bit string with an uncertain length whose expectation obtains the information-theoretic lower-bound.
@@ -92,13 +92,6 @@ Another way to proceed is to say that we are satisfied with proportion $(1-\alph
 A data type that implements the first-order model is given next.
 
 
-\begin{equation}
-    \hash_1 x \coloneqq \trunc(\hash (x' \cat n'),1)\,.
-\end{equation}
-
-
-
-
 We would like to have properties of both homomorphisms $\Fun{F}$ and $\Fun{G}$, but with a much smaller space complexity and much greater entropy (as a proxy of confidentiality).
 
 In what follows, we provide a theoretical implementation of the \emph{cipher set} that obtains optimality in the following ways:
@@ -115,12 +108,12 @@ TODO: we can also talk about approximate boolean functions, which is just an app
     \begin{equation}
         \FoShs_{\Set{X}}(\Set{A},r) \coloneqq \Pair{n'}{f}
     \end{equation}
-    where $r$ is the mean bits per positive element and
+    where $r$ is the maximum bits (which may cause a rate distortion) and
     \begin{equation}
         \begin{split}
-            t			& \coloneqq 2^{\Card{\Set{A}} r+1}-1\,,\\
+            t			& \coloneqq 2^{r+1}-1\,,\\
             \hash_1(x,n)& \coloneqq \trunc(\hash(x' \cat n'),1)\,,\\	
-            \Fun{g}(k) 	& \coloneqq \sum_{{x \in \Set{A}}}\left[\hash_1(x,k) \neq \SetIndicator{\Set{A}}(x)\right]\,,\\
+            \Fun{g}(k) 	& \coloneqq \sum_{{x \in \Set{X}}}\left[\hash_1(x,k) \neq \SetIndicator{\Set{A}}(x)\right]\,,\\
             f 			& \coloneqq \min_{k \in \{0,\ldots,t\}} \Fun{g}(k)\,,\\
             n			& \coloneqq \min \SetBuilder{k \in \NatSet}{\Fun{g}(k) = f}\,.\\	
         \end{split}
@@ -128,7 +121,24 @@ TODO: we can also talk about approximate boolean functions, which is just an app
 \end{definition}
 
 
-NOTE: we can use the above algorithm on a restriction of the universal set to $\Set{A}$ and then ...
+
+
+\begin{definition}
+The \emph{membership} relation
+\begin{equation}
+    \SetContains \colon \Set{X} \times \FoSHS_{\Set{X}} \mapsto \BitSet
+\end{equation}
+is defined as
+\begin{equation}
+    \Tuple{n',f} \SetContains x \coloneqq \trunc(\hash(x' \cat n'),1)\,.
+\end{equation}
+\end{definition}
+
+The pair $\left(\FoSHS_{\Set{X}}, \SetContains\right)$ models a first-order random approximate algebraic structure $\left(\PS{\Set{X}},\SetContains\right)$.
+That is, it models a first-order random approximate set where $\FoShs_{\Set{X}}(\Set{A},\epsilon) \sim \ASetFO{A}[\epsilon]$.
+
+
+
 
 The pair $\left(\FoSHS_{\Set{X}}, \SetContains\right)$ models the first-order random approximate algebraic structure $\left(\PS{\Set{X}},\SetContains\right)$.
 That is, it models a first-order random approximate set where $\FoShs_{\Set{X}}(\Set{A},\epsilon) \sim \ASetFO{A}[\epsilon]$.
@@ -137,64 +147,62 @@ That is, it models a first-order random approximate set where $\FoShs_{\Set{X}}(
     The data type $\FoSHS_{\Set{X}}$ with value constructor $\FoShs_{\Set{X}} \colon \PS{\Set{X}} \times \NatSet \mapsto \FoSHS_{\Set{X}}$ over the computational basis $\SetContains \colon \FoSHS_{\Set{X}} \times \Set{X} \mapsto \BitSet$ is a first-order random approximate set of $\Set{A}$ with an \emph{error rate} $\epsilon$.
 \end{theorem}
 \begin{proof}
-    In order for the value $\FoShs_{\Set{X}}(\Set{A},r)$ to be a first-order random approximate set with a distribution given by $\ASetFO{A}[\epsilon]$, by \cref{def:approx_set} it must satisfy the \emph{a priori}
-    \begin{equation}
-        \Prob{x \in \FoShs_{\Set{X}}(\Set{A},r) \neq x \in \Set{A} \Given x \in \Set{X}} = \epsilon\,.
-    \end{equation}
-    
-    Let $\ASetFO{A}$
-    \begin{equation}
-        \RV{E}_i = [\SetIndicator{}]
-    \end{equation}
-    
-    
-    
-    TODO:
-    
-    (1) With $\Prob{\RV{Q} \leq 2^{r+1}-1}$, $\epsilon = 0$ with expected $u$ bits, or $u/m$ bits per positive element.
-    (2) With $1-\Prob{\RV{Q} \leq 2^{r+1}-1}$, $\RV{A} = \max(\RV{T_1},\ldots,\RV{T_{2^{r+1}-1}})$ with an expectation of a little less than $r$ bits, since we choose the bit string that results in the maximum accuracy.
-    
-    \begin{equation}
-        \RV{Q_i} \sim \bindist\left(u, 0.5\right)
-    \end{equation}
-    with a probability density function and cumulative distribution function given respectively by
-    $\Fun{b}(\cdot \Given u, 0.5)$ and $\Fun{B}(\cdot \Given u, 0.5)$.
-    
-    Given a rate distortion of $r$ bits (maximum), the minimum error, which is equivalent to the maximum number of true outcomes, is a random variable given by
-    \begin{equation}
-        \RV{T} = \max\left\{\RV{Q_1}, \ldots, \RV{Q_k}\right\}
-    \end{equation}
-    where $k = 2^{r+1}-1$.
-    
-    $\RV{T}$ has a support of $\RV{T}$ is $\{0,\ldots,u\}$.
-    The cumulative distribution function of $\RV{T}$ is given by
-    \begin{equation}
-        \Fun{F}_{\RV{T}}(t \,\Given \,u, r) = \left(\Fun{B}\left(t \,\Given \, u, 0.5\right)\right)^{2^{r+1}-1}
-    \end{equation}
-    with a probability distribution function
-    \begin{equation}
-        \Fun{f}_{\RV{T}}(t \,\Given \,u, r) = \left(2^{r+1}-1\right) \Fun{b}
-        \left(t \,\Given \, u, 0.5\right) \left(\Fun{B}
-        \left(t \,\Given \, u, 0.5\right)\right)^{2^{r+1}-2}\,.
-    \end{equation}
-    
-    For sufficiently large $r$, $\epsilon \to 0$ and the expected bit length of the encoding goes to $u$ bits.
-    
-    
+In order for the value $\FoShs_{\Set{X}}(\Set{A},r)$ to be a first-order random approximate set with a distribution
+given by $\ASetFO{A}[\epsilon]$, by \cref{def:approx_set} it must satisfy the \emph{a priori}
+\begin{equation}
+    \Prob{x \in \FoShs_{\Set{X}}(\Set{A},r) \neq x \in \Set{A} \Given x \in \Set{X}} = \epsilon\,.
+\end{equation}
+
+
+\begin{equation}
+    \RV{Q_i} \sim \bindist\left(u, 0.5\right)
+\end{equation}
+with a probability density function and cumulative distribution function given respectively by
+$\Fun{b}(\cdot \Given u, 0.5)$ and $\Fun{B}(\cdot \Given u, 0.5)$.
+
+Given a rate distortion of $r$ bits (maximum), the minimum error, which is equivalent to the maximum number of true outcomes, is a random variable given by
+\begin{equation}
+    \RV{T} = \max\left\{\RV{Q_1}, \ldots, \RV{Q_k}\right\}
+\end{equation}
+where $k = 2^{r+1}-1$.
+
+$\RV{T}$ has a support of $\RV{T}$ is $\{0,\ldots,u\}$.
+The cumulative distribution function of $\RV{T}$ is given by
+\begin{equation}
+    \Fun{F}_{\RV{T}}(t \,\Given \,u, r) = \left(\Fun{B}\left(t \,\Given \, u, 0.5\right)\right)^{2^{r+1}-1}\,.
+\end{equation}
+%with a probability distribution function
+%\begin{equation}
+%    \Fun{f}_{\RV{T}}(t \,\Given \,u, r) = \left(2^{r+1}-1\right) \Fun{b}
+%    \left(t \,\Given \, u, 0.5\right) \left(\Fun{B}
+%    \left(t \,\Given \, u, 0.5\right)\right)^{2^{r+1}-2}\,.
+%\end{equation}
 \end{proof}
+
+
+For sufficiently large $r$, $\epsilon \to 0$ and the expected bit length of the encoding goes to $u$ bits.
+
+We can partition the universal set $\Set{U}$ into two blocks, a positive and negative block with respect to some objective set $\Set{A}$.
+
+% more generally, we can partition the universal set however we wish and apply the above algorithm to some of those blocks to get a higher-order model.
+% how do we decide which algo to use for a block? could be pre-agreed, could be a simple algorithm.
+
+
+
+
 
 The second-order $\pm$ model can be obtained with a slight tweak.
 
 \begin{definition}
     \label{alg:makesecondorder}
-    The \emph{data type} for the \emph{cryptographic} second-order singular hash set is defined as $\SoSHS_{\Set{X}} \coloneqq \BitSet^* \times \NatSet$ with a value constructor $\SoShs_{\Set{X}} \colon \PS{\Set{X}} \times \NatSet \mapsto \SoSHS_{\Set{X}}$ defined as
+    The \emph{data type} for the \emph{cryptographic} second-order singular hash set is defined as $\SoSHS_{\Set{X}} \coloneqq \BitSet^* \times \NatSet \times \NatSet$ with a value constructor $\SoShs_{\Set{X}} \colon \PS{\Set{X}} \times \NatSet \mapsto \SoSHS_{\Set{X}}$ defined as
     \begin{equation}
         \SoShs_{\Set{X}}(\Set{A},r) \coloneqq \Tuple{n',f_n,k}
     \end{equation}
     where $r$ is the rate distortion, the maximum mean number of bits per positive element, and
     \begin{equation}
         \begin{split}
-            t			& \coloneqq 2^{\Card{\Set{A}} r+1}-1\,,\\
+            t			& \coloneqq 2^{r+1}-1\,,\\
             \hash_k(x,n)& \coloneqq \trunc(\hash(x' \cat n'),k)\,,\\	
             \Fun{g}(q) 	& \coloneqq \sum_{{x \in \Set{A}}}\left[\hash_k(x,q) \neq \SetIndicator{\Set{A}}(x)\right]\,,\\
             f 			& \coloneqq \min_{q \in \{0,\ldots,t\}} \Fun{g}(q)\,,\\
@@ -202,6 +210,21 @@ The second-order $\pm$ model can be obtained with a slight tweak.
         \end{split}
     \end{equation}
 \end{definition}
+
+
+
+The \emph{membership} relation
+\begin{equation}
+\SetContains \colon \Set{X} \times \SoSHS_{\Set{X}} \mapsto \BitSet
+\end{equation}
+is defined as
+\begin{equation}
+\Tuple{n',f_n,k} \SetContains x \coloneqq \trunc(\hash(x' \cat n'),k) \in E
+\end{equation}
+where
+\begin{equation}
+E \coloneqq \text{prefix-free encodings for $\True$}\,.
+\end{equation}
 
 
 
@@ -291,28 +314,6 @@ that \emph{generates} the data structure, and an algorithm that implements the \
 %\end{algorithm}
 
 
-The \emph{membership} relation is defined by the predicate $\SetContains \colon \OT{\Set{X}} \times \FoSHS_{\Set{X}} \mapsto \BitSet$, is defined as
-\begin{equation}
-    \Tuple{h,b} \SetContains \OT{x} \coloneqq q' \mod N
-\end{equation}
-where
-\begin{equation}
-    \begin{split}
-        k &\coloneqq \lceil \log_2 N \rceil\,,\\
-        r &\coloneqq \hash(x' \cat b)\,,\\
-        q &\coloneqq \trunc(r,k)\,.
-    \end{split}
-\end{equation}
-
-
-
-\begin{definition}
-    \begin{equation}
-        \SetContains \colon \Set{X} \times \FoSHS_{\Set{X}} \mapsto \BitSet
-    \end{equation}
-    
-\end{definition}
-
 %\begin{algorithm}
 %    \caption{Implementation of $\protect\SetContains$}
 %    \label{alg:contains}
@@ -351,11 +352,7 @@ where
 
 \begin{figure}
     \centering
-<<<<<<< HEAD
     \input{img/fig_shs.tex}
-=======
-    \input{../img/fig_shs.tex}
->>>>>>> bf199c0bfbadde9850307ae549b551f6f3903864
     \caption{\emph{Singular Hash Set} over a \emph{countably infinite} universe}
     \label{fig:my_label}
 \end{figure}
