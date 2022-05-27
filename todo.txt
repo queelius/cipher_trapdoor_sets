@@ -1,7 +1,8 @@
 
 
 Reading about onion routing and traffic analysis, modifying response times and such to see changes in traffic, made me realize:
-    (a) Reinforces earlier point: oblivious set, when constructed for a set A, then the fp and fn rates are suppose to be a constraint, an adversary shouldn't be able to know better than that when checking an element for membership. however, if the adversary takes the powerset of elements, and tries "plausible" sets in this powerset, and generates an oblivious set for each and finds one that has an identical serialization to the oblivious set.
+    (a) Reinforces earlier point: oblivious set, when constructed for a set A, then the fp and fn rates are suppose to be a constraint, an adversary shouldn't be able to know better than that when checking an element for membership.
+    however, if the adversary takes the powerset of elements, and tries "plausible" sets in this powerset, and generates an oblivious set for each and finds one that has an identical serialization to the oblivious set.
 
 
 -p log v, v = 2^-1, then p bits on avg. there are 2^p bit patterns possible. suppose the size of the universe is 8, then there are (8 choose p) possible sets of size p. so, this means that 8!/p!(8-p)! possible sets of size p are expected to map to 2^p bits. 
