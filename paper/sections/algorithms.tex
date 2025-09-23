@@ -1,0 +1,287 @@
+\documentclass[../main_comprehensive.tex]{subfiles}
+\begin{document}
+
+\section{Algorithms and Data Structures}
+\label{sec:algorithms}
+
+This section presents the core algorithms underlying CTS operations, including trapdoor generation, set operations, and advanced analytics.
+
+\subsection{Trapdoor Generation}
+
+The fundamental operation in CTS is the generation of trapdoor values from sensitive data. Algorithm~\ref{alg:trapdoor} describes this process.
+
+\begin{algorithm}
+\caption{Trapdoor Generation}
+\label{alg:trapdoor}
+\begin{algorithmic}[1]
+\REQUIRE Value $v \in \mathcal{V}$, Secret key $k \in \{0,1\}^{256}$
+\ENSURE Trapdoor $t \in \{0,1\}^n$
+\STATE $salt \leftarrow H(k)$ \COMMENT{Derive salt from key}
+\STATE $input \leftarrow salt \| serialize(v)$ \COMMENT{Concatenate}
+\STATE $t \leftarrow H_{n}(input)$ \COMMENT{Hash to n bits}
+\STATE $fingerprint \leftarrow H_{64}(k)$ \COMMENT{Key fingerprint}
+\RETURN $(t, fingerprint)$
+\end{algorithmic}
+\end{algorithm}
+
+The algorithm ensures that:
+\begin{itemize}
+\item Different keys produce different trapdoors for the same value
+\item The same key produces consistent trapdoors (deterministic)
+\item Key fingerprints enable compatibility checking
+\end{itemize}
+
+\subsection{Boolean Set Operations}
+
+Boolean sets support full Boolean algebra with error propagation. Algorithm~\ref{alg:bool_ops} shows the implementation of core operations.
+
+\begin{algorithm}
+\caption{Boolean Set Operations}
+\label{alg:bool_ops}
+\begin{algorithmic}[1]
+\PROCEDURE{Union}{$A, B$}
+  \STATE $result \leftarrow \emptyset$
+  \FOR{each $t \in A \cup B$}
+    \STATE Add $t$ to $result$
+  \ENDFOR
+  \STATE $\epsilon_p \leftarrow \epsilon_A + \epsilon_B - \epsilon_A \cdot \epsilon_B$
+  \STATE $\epsilon_n \leftarrow \epsilon_A \cdot \epsilon_B$
+  \RETURN $(result, \epsilon_p, \epsilon_n)$
+\ENDPROCEDURE
+
+\PROCEDURE{Intersection}{$A, B$}
+  \STATE $result \leftarrow \emptyset$
+  \FOR{each $t \in A$}
+    \IF{$t \in B$}
+      \STATE Add $t$ to $result$
+    \ENDIF
+  \ENDFOR
+  \STATE $\epsilon_p \leftarrow \epsilon_A \cdot \epsilon_B$
+  \STATE $\epsilon_n \leftarrow \epsilon_A + \epsilon_B - \epsilon_A \cdot \epsilon_B$
+  \RETURN $(result, \epsilon_p, \epsilon_n)$
+\ENDPROCEDURE
+
+\PROCEDURE{Complement}{$A$}
+  \STATE \textbf{error} "Cannot enumerate complement"
+  \STATE \COMMENT{Complement exists conceptually only}
+\ENDPROCEDURE
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Symmetric Difference Group}
+
+The symmetric difference operation forms an abelian group, enabling efficient aggregation.
+
+\begin{algorithm}
+\caption{Symmetric Difference Operations}
+\label{alg:sym_diff}
+\begin{algorithmic}[1]
+\PROCEDURE{SymmetricDifference}{$A, B$}
+  \STATE $result \leftarrow \emptyset$
+  \FOR{each $t \in A \cup B$}
+    \IF{$count(t, A) + count(t, B) \equiv 1 \pmod{2}$}
+      \STATE Add $t$ to $result$
+    \ENDIF
+  \ENDFOR
+  \RETURN $result$
+\ENDPROCEDURE
+
+\PROCEDURE{AggregateXOR}{$S_1, S_2, \ldots, S_n$}
+  \STATE $result \leftarrow \emptyset$
+  \FOR{$i = 1$ to $n$}
+    \STATE $result \leftarrow result \oplus S_i$
+  \ENDFOR
+  \RETURN $result$
+\ENDPROCEDURE
+\end{algorithmic}
+\end{algorithm}
+
+The XOR operation satisfies:
+\begin{itemize}
+\item Associativity: $(A \oplus B) \oplus C = A \oplus (B \oplus C)$
+\item Commutativity: $A \oplus B = B \oplus A$
+\item Identity: $A \oplus \emptyset = A$
+\item Inverse: $A \oplus A = \emptyset$
+\end{itemize}
+
+\subsection{Cardinality Estimation}
+
+CTS adapts HyperLogLog for cardinality estimation on trapdoor sets.
+
+\begin{algorithm}
+\caption{HyperLogLog Cardinality Estimation}
+\label{alg:hyperloglog}
+\begin{algorithmic}[1]
+\REQUIRE Trapdoor set $S$, Precision $p$ (typically 14)
+\ENSURE Estimated cardinality $\hat{n}$
+\STATE $m \leftarrow 2^p$ \COMMENT{Number of registers}
+\STATE $M[1..m] \leftarrow 0$ \COMMENT{Initialize registers}
+
+\FOR{each trapdoor $t \in S$}
+  \STATE $j \leftarrow 1 + \langle t_{1:p} \rangle_2$ \COMMENT{First $p$ bits as integer}
+  \STATE $w \leftarrow \langle t_{p+1:} \rangle_2$ \COMMENT{Remaining bits}
+  \STATE $M[j] \leftarrow \max(M[j], \rho(w))$ \COMMENT{$\rho$ = leading zeros + 1}
+\ENDFOR
+
+\STATE $E \leftarrow \alpha_m \cdot m^2 / \sum_{j=1}^{m} 2^{-M[j]}$ \COMMENT{Raw estimate}
+
+\IF{$E \leq 2.5 \cdot m$} \COMMENT{Small range correction}
+  \STATE $V \leftarrow |\{j : M[j] = 0\}|$
+  \IF{$V \neq 0$}
+    \STATE $E \leftarrow m \cdot \log(m/V)$ \COMMENT{Linear counting}
+  \ENDIF
+\ELSIF{$E > 2^{32}/30$} \COMMENT{Large range correction}
+  \STATE $E \leftarrow -2^{32} \cdot \log(1 - E/2^{32})$
+\ENDIF
+
+\RETURN $E$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Similarity Computation}
+
+CTS supports various similarity metrics on encrypted sets.
+
+\begin{algorithm}
+\caption{Jaccard Similarity}
+\label{alg:jaccard}
+\begin{algorithmic}[1]
+\REQUIRE Trapdoor sets $A, B$
+\ENSURE Approximate Jaccard similarity $\hat{J}$
+\STATE $intersection \leftarrow A \cap B$
+\STATE $union \leftarrow A \cup B$
+\STATE $\hat{n}_{int} \leftarrow$ EstimateCardinality($intersection$)
+\STATE $\hat{n}_{union} \leftarrow$ EstimateCardinality($union$)
+\STATE $\hat{J} \leftarrow \hat{n}_{int} / \hat{n}_{union}$
+\STATE $\epsilon \leftarrow$ PropagateError($\epsilon_A, \epsilon_B$)
+\RETURN $(\hat{J}, \epsilon)$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{MinHash for Similarity}
+
+MinHash provides an efficient alternative for similarity computation.
+
+\begin{algorithm}
+\caption{MinHash Signature Generation}
+\label{alg:minhash}
+\begin{algorithmic}[1]
+\REQUIRE Trapdoor set $S$, Number of hashes $k$
+\ENSURE MinHash signature $sig[1..k]$
+\FOR{$i = 1$ to $k$}
+  \STATE $min_i \leftarrow \infty$
+  \FOR{each $t \in S$}
+    \STATE $h_i \leftarrow H_i(t)$ \COMMENT{$i$-th hash function}
+    \STATE $min_i \leftarrow \min(min_i, h_i)$
+  \ENDFOR
+  \STATE $sig[i] \leftarrow min_i$
+\ENDFOR
+\RETURN $sig$
+\end{algorithmic}
+\end{algorithm}
+
+The probability that two sets have the same MinHash value equals their Jaccard similarity:
+$$P[sig_A[i] = sig_B[i]] = J(A, B)$$
+
+\subsection{Locality-Sensitive Hashing}
+
+LSH enables approximate nearest neighbor search on trapdoor sets.
+
+\begin{algorithm}
+\caption{LSH Indexing}
+\label{alg:lsh}
+\begin{algorithmic}[1]
+\REQUIRE Trapdoor sets $\{S_1, \ldots, S_n\}$, Parameters $L, k$
+\ENSURE LSH index structure
+\STATE Initialize $L$ hash tables $T_1, \ldots, T_L$
+
+\FOR{each set $S_i$}
+  \FOR{$j = 1$ to $L$}
+    \STATE $sig \leftarrow$ MinHash($S_i$, $k$) \COMMENT{$k$ hash values}
+    \STATE $bucket \leftarrow H(sig)$ \COMMENT{Hash to bucket}
+    \STATE Insert $S_i$ into $T_j[bucket]$
+  \ENDFOR
+\ENDFOR
+
+\RETURN $(T_1, \ldots, T_L)$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Threshold Secret Sharing}
+
+CTS supports Shamir's secret sharing for distributed key management.
+
+\begin{algorithm}
+\caption{$(k, n)$-Threshold Secret Sharing}
+\label{alg:secret_sharing}
+\begin{algorithmic}[1]
+\PROCEDURE{SplitKey}{$secret, k, n$}
+  \STATE Choose random polynomial $f(x) = secret + a_1x + \cdots + a_{k-1}x^{k-1}$
+  \FOR{$i = 1$ to $n$}
+    \STATE $share_i \leftarrow (i, f(i))$
+  \ENDFOR
+  \RETURN $\{share_1, \ldots, share_n\}$
+\ENDPROCEDURE
+
+\PROCEDURE{RecoverKey}{$shares$}
+  \REQUIRE $|shares| \geq k$
+  \STATE $secret \leftarrow 0$
+  \FOR{each $(i, y_i) \in shares$}
+    \STATE $\lambda_i \leftarrow \prod_{j \neq i} \frac{j}{j - i}$ \COMMENT{Lagrange coefficient}
+    \STATE $secret \leftarrow secret + y_i \cdot \lambda_i$
+  \ENDFOR
+  \RETURN $secret$
+\ENDPROCEDURE
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Batch Operations}
+
+CTS provides optimized batch operations for improved throughput.
+
+\begin{algorithm}
+\caption{Batch Trapdoor Generation}
+\label{alg:batch_trapdoor}
+\begin{algorithmic}[1]
+\REQUIRE Values $\{v_1, \ldots, v_n\}$, Secret key $k$
+\ENSURE Trapdoors $\{t_1, \ldots, t_n\}$
+\STATE $workers \leftarrow$ GetThreadCount()
+\STATE $chunk\_size \leftarrow \lceil n / workers \rceil$
+
+\PARFOR{$w = 1$ to $workers$}
+  \STATE $start \leftarrow (w-1) \cdot chunk\_size + 1$
+  \STATE $end \leftarrow \min(w \cdot chunk\_size, n)$
+  \FOR{$i = start$ to $end$}
+    \STATE $t_i \leftarrow$ GenerateTrapdoor($v_i$, $k$)
+  \ENDFOR
+\ENDPARFOR
+
+\RETURN $\{t_1, \ldots, t_n\}$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Complexity Analysis}
+
+\begin{table}[h]
+\centering
+\caption{Time Complexity of CTS Operations}
+\begin{tabular}{lcc}
+\toprule
+Operation & Time & Space \\
+\midrule
+Trapdoor generation & $O(1)$ & $O(1)$ \\
+Set insertion & $O(1)$ & $O(1)$ \\
+Membership test & $O(1)$ & $O(1)$ \\
+Union & $O(|A| + |B|)$ & $O(|A| + |B|)$ \\
+Intersection & $O(\min(|A|, |B|))$ & $O(\min(|A|, |B|))$ \\
+Symmetric difference & $O(|A| + |B|)$ & $O(|A| + |B|)$ \\
+Cardinality estimation & $O(|S|)$ & $O(\log \log n)$ \\
+Jaccard similarity & $O(|A| + |B|)$ & $O(1)$ \\
+MinHash signature & $O(k \cdot |S|)$ & $O(k)$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The space-efficient cardinality estimation is particularly notable, requiring only logarithmic space in the logarithm of the set size.
+
+\end{document}
