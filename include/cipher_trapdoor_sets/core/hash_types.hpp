@@ -128,3 +128,17 @@ private:
 };
 
 } // namespace cts::core
+
+// Hash support for standard containers
+namespace std {
+    template <std::size_t N>
+    struct hash<cts::core::hash_value<N>> {
+        std::size_t operator()(const cts::core::hash_value<N>& h) const noexcept {
+            std::size_t result = 0;
+            for (std::size_t i = 0; i < std::min(N, sizeof(std::size_t)); ++i) {
+                result = (result << 8) | h.data[i];
+            }
+            return result;
+        }
+    };
+}

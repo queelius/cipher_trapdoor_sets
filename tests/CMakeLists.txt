@@ -9,6 +9,8 @@ set(TEST_SOURCES
     test_core.cpp
     test_homomorphic.cpp
     test_serialization_keys.cpp
+    test_hash_types.cpp
+    test_approximate_value.cpp
 )
 
 foreach(test_source ${TEST_SOURCES})

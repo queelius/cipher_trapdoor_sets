@@ -122,7 +122,8 @@ void test_secure_aggregator() {
         assert(sum_result.error_rate() == 0.0);
 
         secure_aggregator<double> double_aggregator(secret);
-        auto avg_result = double_aggregator.average(empty_values);
+        std::vector<double> empty_double_values;
+        auto avg_result = double_aggregator.average(empty_double_values);
         assert(avg_result.value() == 0.0);
     }
 
@@ -204,7 +205,7 @@ void test_threshold_scheme() {
             participants.push_back(factory.create(i));
         }
 
-        auto operation = [](trapdoor<int, 32> const& td) {
+        std::function<bool(trapdoor<int, 32> const&)> operation = [](trapdoor<int, 32> const& td) {
             return td.hash().data[0] % 2 == 0;  // Simple predicate
         };
 
